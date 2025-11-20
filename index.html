@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 キャラクター設定ジェネレーター V50 (カスタム調整用)</title>
     <style>
-        /* V42 ベースのCSS */
         body { font-family: 'Arial', sans-serif; background-color: #f4f4f9; padding: 20px; }
         h1, h2, h3 { color: #2c3e50; }
-        
-        /* 🎨 修正: 上下配置のため、flexを削除し、幅を画面いっぱいに */
         #generator-area { 
-            display: block; /* flex を削除 */
+            display: block;
             gap: 30px; 
             margin-top: 20px; 
         }
@@ -23,16 +20,15 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
             max-height: 85vh; 
             overflow-y: auto; 
-            order: 2; /* プレビューの下に表示 */
+            order: 2;
         }
         
-        /* Canvas表示サイズをコンテナに合わせる */
         #canvas-area { 
             flex-grow: 1; 
             min-width: 400px; 
             max-width: 100%; 
-            order: 1; /* プレビューを上に表示 */
-            margin-bottom: 20px; /* プレビューと入力コントロールの間に間隔 */
+            order: 1;
+            margin-bottom: 20px; 
         }
         #statusCanvas {
             width: 100%; 
@@ -41,7 +37,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
         }
         
-        /* 入力要素の基本スタイル */
         #input-controls label,
         #input-controls input[type="text"],
         #input-controls input[type="file"],
@@ -51,13 +46,12 @@
         }
         #input-controls input[type="text"] { width: 100%; }
 
-        /* ラジオボタン共通スタイル */
         .select-group { display: flex; gap: 10px; margin-top: 5px; margin-bottom: 10px; flex-wrap: wrap; }
         .select-group input[type="radio"] { display: none; }
         
         .select-group label { 
             display: flex; 
-            border-radius: 50%; /* 円形 */
+            border-radius: 50%;
             cursor: pointer; 
             transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s; 
             margin-top: 0; 
@@ -90,7 +84,6 @@
             background-color: #eaf4fd; 
         }
 
-        /* 撃種選択UI */
         #shotTypeSelect label {
             width: auto;
             border-radius: 4px;
@@ -108,7 +101,6 @@
             box-shadow: none;
         }
 
-        /* 座標・サイズ入力グループのレイアウト */
         .pos-size-group { 
             margin-bottom: 10px; 
             border: 1px solid #eee; 
@@ -129,7 +121,6 @@
         }
         .pos-size-group span { min-width: 20px; font-size: 0.9em; color: #555; } 
 
-        /* その他のスタイル */
         #tribeBtn { background-color: #f39c12; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; margin-bottom: 10px; display: inline-block; }
         #tribeInput { display: inline-block; width: calc(100% - 115px); margin-right: 10px; }
         .ss-input-group { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
@@ -137,7 +128,6 @@
         .combo-img-preview img { width: 100%; height: 100%; object-fit: contain; }
         .color-setting-group { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
         
-        /* モーダルスタイル */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); padding-top: 60px; }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; position: relative; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
@@ -146,7 +136,6 @@
         .tribe-grid button { padding: 10px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .tribe-grid button:hover { background-color: #2980b9; }
 
-        /* アビリティ/コネクトスキルリストの修正 */
         #ability-controls { border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .ability-item { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
         .ability-item input[type="checkbox"] { margin-right: 5px; }
@@ -162,20 +151,16 @@
             cursor: pointer;
         }
 
-        /* V50: 調整用設定 */
         #jyu_abi_controls, #custom_pos_controls {
-            /* 獣神化選択時にJSで表示切り替えを行う */
             border: 1px solid #c0392b;
             padding: 10px;
             border-radius: 4px;
             margin-bottom: 10px;
         }
-        /* 真・改専用の入力フィールド。獣神化では非表示になる */
         .shin-kai-only {
             display: block;
         }
 
-        /* ダウンロードボタンの配置修正 */
         #downloadBtn {
             display: block;
             margin: 20px auto 0;
@@ -205,18 +190,18 @@
             
             <label>属性:</label>
             <div id="attributeSelect" class="select-group">
-                <input type="radio" id="attr_fire" name="attribute" value="火" checked><label for="attr_fire"><img src="img/attr_fire.png" alt="火"></label>
-                <input type="radio" id="attr_water" name="attribute" value="水"><label for="attr_water"><img src="img/attr_water.png" alt="水"></label>
-                <input type="radio" id="attr_wood" name="attribute" value="木"><label for="attr_wood"><img src="img/attr_wood.png" alt="木"></label>
-                <input type="radio" id="attr_light" name="attribute" value="光"><label for="attr_light"><img src="img/attr_light.png" alt="光"></label>
-                <input type="radio" id="attr_dark" name="attribute" value="闇"><label for="attr_dark"><img src="img/attr_dark.png" alt="闇"></label>
+                <input type="radio" id="attr_fire" name="attribute" value="火" checked><label for="attr_fire"><img src="attr_fire.png" alt="火"></label>
+                <input type="radio" id="attr_water" name="attribute" value="水"><label for="attr_water"><img src="attr_water.png" alt="水"></label>
+                <input type="radio" id="attr_wood" name="attribute" value="木"><label for="attr_wood"><img src="attr_wood.png" alt="木"></label>
+                <input type="radio" id="attr_light" name="attribute" value="光"><label for="attr_light"><img src="attr_light.png" alt="光"></label>
+                <input type="radio" id="attr_dark" name="attribute" value="闇"><label for="attr_dark"><img src="attr_dark.png" alt="闇"></label>
             </div>
             
             <label>種類:</label>
             <div id="numberSelect" class="select-group">
-                <input type="radio" id="num_shin" name="number" value="真" checked><label for="num_shin"><img src="img/type_kami.png" alt="真"></label>
-                <input type="radio" id="num_kai" name="number" value="改"><label for="num_kai"><img src="img/type_shin.png" alt="改"></label>
-                <input type="radio" id="num_jyu" name="number" value="獣神化"><label for="num_jyu"><img src="img/type_chou.png" alt="獣"></label>
+                <input type="radio" id="num_shin" name="number" value="真" checked><label for="num_shin"><img src="type_kami.png" alt="真"></label>
+                <input type="radio" id="num_kai" name="number" value="改"><label for="num_kai"><img src="type_shin.png" alt="改"></label>
+                <input type="radio" id="num_jyu" name="number" value="獣神化"><label for="num_jyu"><img src="type_chou.png" alt="獣"></label>
             </div>
             
             <label for="charName">キャラ名:</label>
@@ -224,7 +209,7 @@
             
             <div class="color-setting-group">
                 <label for="charNameColor">🎨</label>
-                <input type="color" id="charNameColor" value="#33FF33">
+                <input type="color" id="charNameColor" value="#000000">
             </div>
 
             <label for="charImageUpload">キャラ画像:</label>
@@ -257,7 +242,7 @@
             
             <div class="color-setting-group">
                 <label for="tribeBattleColor">🎨</label>
-                <input type="color" id="tribeBattleColor" value="#33FF33">
+                <input type="color" id="tribeBattleColor" value="#000000">
             </div>
 
             <h2>戦闘ステータス</h2>
@@ -270,10 +255,10 @@
             
             <label>ラックスキル:</label>
             <div id="luckSkillSelect" class="select-group">
-                <input type="radio" id="luck_guide" name="luckSkill" value="ガイド" checked><label for="luck_guide"><img src="img/luck_guide.png" alt="ガイド"></label>
-                <input type="radio" id="luck_yucri" name="luckSkill" value="友クリ"><label for="luck_yucri"><img src="img/luck_yucri.png" alt="友クリ"></label>
-                <input type="radio" id="luck_shield" name="luckSkill" value="シールド"><label for="luck_shield"><img src="img/luck_shield.png" alt="シールド"></label>
-                <input type="radio" id="luck_critical" name="luckSkill" value="クリティカル"><label for="luck_critical"><img src="img/luck_critical.png" alt="クリティカル"></label>
+                <input type="radio" id="luck_guide" name="luckSkill" value="ガイド" checked><label for="luck_guide"><img src="luck_guide.png" alt="ガイド"></label>
+                <input type="radio" id="luck_yucri" name="luckSkill" value="友クリ"><label for="luck_yucri"><img src="luck_yucri.png" alt="友クリ"></label>
+                <input type="radio" id="luck_shield" name="luckSkill" value="シールド"><label for="luck_shield"><img src="luck_shield.png" alt="シールド"></label>
+                <input type="radio" id="luck_critical" name="luckSkill" value="クリティカル"><label for="luck_critical"><img src="luck_critical.png" alt="クリティカル"></label>
             </div>
 
             <h3>ステータス</h3>
@@ -282,8 +267,8 @@
             <label for="stat3">(スピード):</label><input type="text" id="stat3" value="300.00">
             
             <div class="color-setting-group">
-                <label for="statsColor">カラー:</label>
-                <input type="color" id="statsColor" value="#33CC33">
+                <label for="statsColor">🎨</label>
+                <input type="color" id="statsColor" value="#000000">
             </div>
             
             <hr>
@@ -324,11 +309,11 @@
             <div id="ability-controls">
                 <div class="color-setting-group">
                     <label for="abilityBoxBgColor">背景色🎨</label>
-                    <input type="color" id="abilityBoxBgColor" value="#222222">
+                    <input type="color" id="abilityBoxBgColor" value="#ffcccc">
                 </div>
                 <div class="color-setting-group">
                     <label for="abilityBoxBorderColor">枠線色🎨</label>
-                    <input type="color" id="abilityBoxBorderColor" value="#33FF33">
+                    <input type="color" id="abilityBoxBorderColor" value="#ff0000">
                 </div>
                 
                 <label>アビリティリスト:</label>
@@ -339,7 +324,7 @@
             </div>
             <div class="color-setting-group">
                 <label for="abilityColor">🎨</label>
-                <input type="color" id="abilityColor" value="#33FF33">
+                <input type="color" id="abilityColor" value="#000000">
             </div>
             
             <label id="assistSkillLabel">アシストスキル:</label>
@@ -372,10 +357,15 @@
             </div>
             <div class="color-setting-group" style="margin-left: 10px;">
                 <label for="ssTurnColor">🎨</label>
-                <input type="color" id="ssTurnColor" value="#FFFFFF">
+                <input type="color" id="ssTurnColor" value="#">
             </div>
             <label for="strikeShotText">ストライクショット:</label>
             <input type="text" id="strikeShotText" value="ストライクショットを入力">
+            
+            <div class="color-setting-group">
+                <label for="ssDescColor">SS説明 🎨</label>
+                <input type="color" id="ssDescColor" value="#000000">
+            </div>
             
             <hr>
             
@@ -384,13 +374,13 @@
             <h3>主 友情コンボ</h3>
             <label>主 友情コンボ属性:</label>
             <div id="mainComboAttributeSelect" class="select-group combo-attr-select-group">
-                <input type="radio" id="main_attr_fire" name="mainComboAttribute" value="火" checked><label for="main_attr_fire"><img src="img/attr_fire_combo.png" alt="火"></label>
-                <input type="radio" id="main_attr_water" name="mainComboAttribute" value="水"><label for="main_attr_water"><img src="img/attr_water_combo.png" alt="水"></label>
-                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="main_attr_wood"><img src="img/attr_wood_combo.png" alt="木"></label>
-                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="main_attr_light"><img src="img/attr_light_combo.png" alt="光"></label>
-                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="main_attr_dark"><img src="img/attr_dark_combo.png" alt="闇"></label>
-                <input type="radio" id="main_attr_none" name="mainComboAttribute" value="無"><label for="main_attr_none"><img src="img/attr_none_combo.png" alt="無"></label>
-                <input type="radio" id="main_attr_all" name="mainComboAttribute" value="全"><label for="main_attr_all"><img src="img/attr_all_combo.png" alt="全"></label>
+                <input type="radio" id="main_attr_fire" name="mainComboAttribute" value="火" checked><label for="main_attr_fire"><img src="attr_fire_combo.png" alt="火"></label>
+                <input type="radio" id="main_attr_water" name="mainComboAttribute" value="水"><label for="main_attr_water"><img src="attr_water_combo.png" alt="水"></label>
+                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="main_attr_wood"><img src="attr_wood_combo.png" alt="木"></label>
+                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="main_attr_light"><img src="attr_light_combo.png" alt="光"></label>
+                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="main_attr_dark"><img src="attr_dark_combo.png" alt="闇"></label>
+                <input type="radio" id="main_attr_none" name="mainComboAttribute" value="無"><label for="main_attr_none"><img src="attr_none_combo.png" alt="無"></label>
+                <input type="radio" id="main_attr_all" name="mainComboAttribute" value="全"><label for="main_attr_all"><img src="attr_all_combo.png" alt="全"></label>
             </div>
 
             <label for="mainComboText">主友情コンボ:</label>
@@ -417,13 +407,13 @@
             <h3>副 友情コンボ</h3>
             <label>副 友情コンボ属性:</label>
             <div id="subComboAttributeSelect" class="select-group combo-attr-select-group">
-                <input type="radio" id="sub_attr_dark" name="subComboAttribute" value="闇" checked><label for="sub_attr_dark"><img src="img/attr_dark_combo.png" alt="闇"></label>
-                <input type="radio" id="sub_attr_fire" name="subComboAttribute" value="火"><label for="sub_attr_fire"><img src="img/attr_fire_combo.png" alt="火"></label>
-                <input type="radio" id="sub_attr_water" name="subComboAttribute" value="水"><label for="sub_attr_water"><img src="img/attr_water_combo.png" alt="水"></label>
-                <input type="radio" id="sub_attr_wood" name="subComboAttribute" value="木"><label for="sub_attr_wood"><img src="img/attr_wood_combo.png" alt="木"></label>
-                <input type="radio" id="sub_attr_light" name="subComboAttribute" value="光"><label for="sub_attr_light"><img src="img/attr_light_combo.png" alt="光"></label>
-                <input type="radio" id="sub_attr_none" name="subComboAttribute" value="無"><label for="sub_attr_none"><img src="img/attr_none_combo.png" alt="無"></label>
-                <input type="radio" id="sub_attr_all" name="subComboAttribute" value="全"><label for="sub_attr_all"><img src="img/attr_all_combo.png" alt="全"></label>
+                <input type="radio" id="sub_attr_fire" name="subComboAttribute" value="火"><label for="sub_attr_fire"><img src="attr_fire_combo.png" alt="火"></label>
+                <input type="radio" id="sub_attr_water" name="subComboAttribute" value="水"><label for="sub_attr_water"><img src="attr_water_combo.png" alt="水"></label>
+                <input type="radio" id="sub_attr_wood" name="subComboAttribute" value="木"><label for="sub_attr_wood"><img src="attr_wood_combo.png" alt="木"></label>
+                <input type="radio" id="sub_attr_light" name="subComboAttribute" value="光"><label for="sub_attr_light"><img src="attr_light_combo.png" alt="光"></label>
+                <input type="radio" id="sub_attr_dark" name="subComboAttribute" value="闇" checked><label for="sub_attr_dark"><img src="attr_dark_combo.png" alt="闇"></label>
+                <input type="radio" id="sub_attr_none" name="subComboAttribute" value="無"><label for="sub_attr_none"><img src="attr_none_combo.png" alt="無"></label>
+                <input type="radio" id="sub_attr_all" name="subComboAttribute" value="全"><label for="sub_attr_all"><img src="attr_all_combo.png" alt="全"></label>
             </div>
 
             <label for="subComboText">副友情コンボ:</label>
@@ -449,7 +439,7 @@
             
             <div class="color-setting-group">
                 <label for="comboDescColor">🎨</label>
-                <input type="color" id="comboDescColor" value="#33CC33">
+                <input type="color" id="comboDescColor" value="#000000">
             </div>
 
             <button id="downloadBtn">画像をダウンロード (PNG)</button>
@@ -466,7 +456,6 @@
     </div>
 
     <script>
-        // --- 1. 定数と初期設定 ---
         const canvas = document.getElementById('statusCanvas');
         const ctx = canvas.getContext('2d');
         const MAX_ABILITIES = 8;
@@ -477,7 +466,6 @@
             "火": "fire", "水": "water", "木": "wood", "光": "light", "闇": "dark", "無": "none", "全": "all"
         };
         
-        // V50: 新しい入力フィールドの参照
         const inputs = {
             charName: document.getElementById('charName'), stat1: document.getElementById('stat1'), stat2: document.getElementById('stat2'),
             stat3: document.getElementById('stat3'), tribeInput: document.getElementById('tribeInput'), battleType: document.getElementById('battleType'),
@@ -485,7 +473,6 @@
             strikeShotText: document.getElementById('strikeShotText'), ssTurn1: document.getElementById('ssTurn1'), ssTurn2: document.getElementById('ssTurn2'),
             mainComboText: document.getElementById('mainComboText'), subComboText: document.getElementById('subComboText'),
             
-            // 画像座標・サイズ (V50 元の初期値)
             charImageX: document.getElementById('charImageX'), charImageY: document.getElementById('charImageY'),
             charImageWidth: document.getElementById('charImageWidth'), charImageHeight: document.getElementById('charImageHeight'),
             mainComboImageX: document.getElementById('mainComboImageX'), mainComboImageY: document.getElementById('mainComboImageY'),
@@ -493,26 +480,23 @@
             subComboImageX: document.getElementById('subComboImageX'), subComboImageY: document.getElementById('subComboImageY'),
             subComboWidth: document.getElementById('subComboWidth'), subComboHeight: document.getElementById('subComboHeight'),
             
-            // V50: 真・改 SS/友情 Y座標 (V50 元の初期値)
             ssY_shinKai: document.getElementById('ssY_shinKai'),
             mainComboY_shinKai: document.getElementById('mainComboY_shinKai'),
             subComboY_shinKai: document.getElementById('subComboY_shinKai'),
             
-            // V50: 獣神化 専用のSS/友情 Y座標 (V50 元の初期値)
             ssY_jyu: document.getElementById('ssY_jyu'),
             mainComboY_jyu: document.getElementById('mainComboY_jyu'), 
             subComboY_jyu: document.getElementById('subComboY_jyu'),   
             
-            // V50: 獣神化 専用のアビリティ領域Y/Height (V50 元の初期値)
             abiY_jyu: document.getElementById('abiY_jyu'),
             abiHeight_jyu: document.getElementById('abiHeight_jyu'),
 
-            // カラー設定
             charNameColor: document.getElementById('charNameColor'), tribeBattleColor: document.getElementById('tribeBattleColor'),
             statsColor: document.getElementById('statsColor'), abilityColor: document.getElementById('abilityColor'),
             assistShotSsDescColor: document.getElementById('assistShotSsDescColor'), ssTurnColor: document.getElementById('ssTurnColor'),
             comboDescColor: document.getElementById('comboDescColor'), abilityBoxBgColor: document.getElementById('abilityBoxBgColor'),
             abilityBoxBorderColor: document.getElementById('abilityBoxBorderColor'),
+            ssDescColor: document.getElementById('ssDescColor'),
         };
         const attributeSelectDiv = document.getElementById('attributeSelect');
         const numberSelectDiv = document.getElementById('numberSelect');
@@ -544,7 +528,7 @@
             shotType: new Image(), luckSkill: new Image(), mainComboAttr: new Image(), subComboAttr: new Image(), 
             abilityGauge: new Image() 
         };
-        iconImages.abilityGauge.src = 'img/ability_gauge.png'; 
+        iconImages.abilityGauge.src = 'ability_gauge.png'; 
         
         let imagesToLoad = 0;
         let imagesLoaded = 0;
@@ -575,7 +559,6 @@
             if (imagesToLoad === 0 || imagesToLoad === imagesLoaded) { drawStatusImage(); }
         }
 
-        // --- 2. カスタム関数: 自動サイズ調整＆改行＆垂直中央揃え機能 (改善版を適用) ---
         function autoResizeAndCenterText(ctx, text, x, startY, height, maxWidth, initialSize, minSize, lineHeight, fontName = 'sans-serif', textAlign = 'center') {
             
             const originalFont = ctx.font;
@@ -584,19 +567,17 @@
             const originalTextBaseline = ctx.textBaseline; 
 
             ctx.textAlign = textAlign;
-            ctx.textBaseline = 'middle'; // 描画基準を中央 (middle) に設定
+            ctx.textBaseline = 'middle'; 
 
             let fontSize = initialSize;
             let finalLines = []; 
             
-            // 最初に、指定された最大幅で1行に収まるかチェック
             ctx.font = `${fontSize}px ${fontName}`;
             let textWidth = ctx.measureText(text).width;
 
             if (textWidth <= maxWidth) {
                 finalLines = [text];
             } else {
-                // 収まらない場合、フォントサイズを縮小して1行に収まるか試す
                 let currentSize = fontSize;
                 let foundFit = false;
                 while (currentSize >= minSize) {
@@ -610,8 +591,6 @@
                     }
                     currentSize--;
                 }
-
-                // 1行に収まらない場合は、最小サイズで改行して詰める
                 if (!foundFit) {
                     fontSize = minSize; 
                     ctx.font = `${fontSize}px ${fontName}`;
@@ -635,27 +614,20 @@
                 }
             }
 
-
             const totalTextHeight = finalLines.length * lineHeight;
-            // 垂直方向の中心Y座標を計算
             const drawYCenter = startY + (height / 2); 
-            
-            // 最初の行を描画する基準Y座標
+
             let firstLineY = drawYCenter - (totalTextHeight / 2) + (lineHeight / 2); 
 
             for (let i = 0; i < finalLines.length; i++) {
-                // middle基準で描画
                 ctx.fillText(finalLines[i], x, firstLineY + (i * lineHeight));
             }
             
             ctx.font = originalFont;
             ctx.fillStyle = originalFillStyle;
             ctx.textAlign = originalTextAlign;
-            ctx.textBaseline = originalTextBaseline; // ベースラインを元に戻す
+            ctx.textBaseline = originalTextBaseline;
         }
-
-
-        // --- 3. 動的生成・制御関数 ---
 
         function initTribeModal() {
             const grid = document.getElementById('tribeGrid');
@@ -693,7 +665,7 @@
             checkbox.checked = abilities[index].hasIcon;
             
             const iconPreview = document.createElement('img');
-            iconPreview.src = iconImages.abilityGauge.src; 
+            iconPreview.src = 'ability_gauge.png'; 
             iconPreview.style.display = abilities[index].hasIcon ? 'inline-block' : 'none';
 
             const textInput = document.createElement('input');
@@ -798,7 +770,7 @@
             const selectedAttribute = document.querySelector('input[name="attribute"]:checked');
             const selectedNumber = document.querySelector('input[name="number"]:checked');
             if (selectedAttribute && selectedNumber) {
-                return `img/${selectedNumber.value}${selectedAttribute.value}.png`;
+                return `${selectedNumber.value}${selectedAttribute.value}.png`;
             }
             return null;
         }
@@ -815,9 +787,9 @@
             const hasGauge = abilities.some(abi => abi.hasIcon);
             
             if (hasGauge) {
-                return `img/shot_${selectedShotType}_gauge.png`;
+                return `shot_${selectedShotType}_gauge.png`;
             } else {
-                return `img/shot_${selectedShotType}.png`;
+                return `shot_${selectedShotType}.png`;
             }
         }
 
@@ -828,7 +800,7 @@
                     "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",      
                     "シールド": "luck_shield.png", "クリティカル": "luck_critical.png"  
                 };
-                return `img/${luckValueMap[selectedLuck.value]}`; 
+                return `${luckValueMap[selectedLuck.value]}`; 
             }
             return null;
         }
@@ -840,7 +812,7 @@
             const attr = selectedRadio.value; 
             const attrBase = ATTRIBUTE_MAP[attr] || null; 
             if (!attrBase) return null;
-            return `img/attr_${attrBase}_combo.png`;
+            return `attr_${attrBase}_combo.png`;
         }
         
         function handleComboImageUpload(event, type) {
@@ -872,7 +844,6 @@
             }
         }
         
-        // V50: フォームの表示/非表示を更新
         function updateFormVisibility() {
             const selectedNumber = document.querySelector('input[name="number"]:checked').value;
             const isKAI = selectedNumber === '改';
@@ -881,22 +852,18 @@
             
             const shinKaiInputs = document.querySelectorAll('.shin-kai-only');
             
-            // 真・改専用のテキストフィールド
             shinKaiInputs.forEach(input => {
                 input.style.display = isJYU ? 'none' : 'block';
             });
 
-            // コネクトスキルリスト (改専用)
             connectSkillControlsDiv.style.display = isKAI ? 'block' : 'none';
 
-            // 獣神化専用の調整設定 (獣神化専用のY座標など)
             jyuAbiControlsDiv.style.display = isJYU ? 'block' : 'none';
 
-            // ラベルの更新
             if (isKAI) {
                 assistSkillLabel.textContent = 'コネクトスキル (発動条件):';
                 shotSkillLabel.textContent = '発動条件:';
-                assistSkillLabel.style.display = 'none'; // テキストフィールドの代わりにコネクトスキルリストが表示されるため非表示
+                assistSkillLabel.style.display = 'none'; 
             } else if (isSHIN) {
                 assistSkillLabel.textContent = 'アシストスキル:';
                 shotSkillLabel.textContent = 'ショットスキル:';
@@ -909,11 +876,9 @@
             drawStatusImage(); 
         }
 
-        // --- 4. 描画処理関数 ---
         function drawStatusImage() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 背景描画
+
             if (currentBackgroundImage && currentBackgroundImage.complete && currentBackgroundImage.naturalWidth > 0) {
                 ctx.drawImage(currentBackgroundImage, 0, 0, canvas.width, canvas.height); 
             } else {
@@ -921,7 +886,6 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
-            // A. キャラクター画像
             const charImageX = parseInt(inputs.charImageX.value, 10); 
             const charImageY = parseInt(inputs.charImageY.value, 10); 
             const charImageWidth = parseInt(inputs.charImageWidth.value, 10); 
@@ -930,25 +894,18 @@
             if (currentCharImage && currentCharImage.complete) {
                    ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
             }
-            
-            // ==========================================================
-            // B. テキスト・アイコン描画
-            // ==========================================================
-            
+
             const selectedNumber = document.querySelector('input[name="number"]:checked').value;
             const isKAI = selectedNumber === '改';
             const isJYU = selectedNumber === '獣神化';
             const isSHIN = selectedNumber === '真';
-            
-            // V50: 描画位置の決定 (非表示フィールドから取得)
+
             const ssDrawY = isJYU ? parseInt(inputs.ssY_jyu.value, 10) : parseInt(inputs.ssY_shinKai.value, 10);
             const mainComboDrawY = isJYU ? parseInt(inputs.mainComboY_jyu.value, 10) : parseInt(inputs.mainComboY_shinKai.value, 10);
             const subComboDrawY = isJYU ? parseInt(inputs.subComboY_jyu.value, 10) : parseInt(inputs.subComboY_shinKai.value, 10);
-            
-            // V50: アビリティ領域の決定 (獣神化の場合はカスタム値を使用)
+
             let ABILITY_BOX_REGION;
             if (isJYU) {
-                // abiY_jyu, abiHeight_jyu は獣神化の背景画像に合わせて調整
                 ABILITY_BOX_REGION = { 
                     x: 530, 
                     y: parseInt(inputs.abiY_jyu.value, 10), 
@@ -956,20 +913,17 @@
                     height: parseInt(inputs.abiHeight_jyu.value, 10)
                 };
             } else {
-                // 真・改のデフォルト値
                 ABILITY_BOX_REGION = { x: 530, y: 20, width: 890, height: 305 };
             }
 
-            const COMBO_ATTR_WIDTH_CANVAS = 128; // 属性アイコン画像の幅
-            const COMBO_ATTR_HEIGHT_CANVAS = 72; // 属性アイコン画像の高さ
+            const COMBO_ATTR_WIDTH_CANVAS = 128; 
+            const COMBO_ATTR_HEIGHT_CANVAS = 72; 
             const MAIN_COMBO_ATTR_POS_CANVAS = { x: 720, y: mainComboDrawY }; 
             const SUB_COMBO_ATTR_POS_CANVAS = { x: 720, y: subComboDrawY }; 
-            
-            // 属性アイコンの右側からテキストを開始
-            const COMBO_TEXT_START_X = MAIN_COMBO_ATTR_POS_CANVAS.x + COMBO_ATTR_WIDTH_CANVAS + 10;
-            const COMBO_TEXT_MAX_WIDTH = 570; // 720 + 128 + 10 + 570 = 1428 (約1440に収まる)
 
-            // 1. キャラ名 
+            const COMBO_TEXT_START_X = MAIN_COMBO_ATTR_POS_CANVAS.x + COMBO_ATTR_WIDTH_CANVAS + 10;
+            const COMBO_TEXT_MAX_WIDTH = 570; 
+
             ctx.textAlign = 'center';
             ctx.fillStyle = inputs.charNameColor.value; 
             autoResizeAndCenterText(
@@ -977,35 +931,30 @@
                 235, 45, 30, 400, 40, 18, 26, 'Arial Black'
             );
 
-            // 2. 種族 (テキスト) と 戦型 (テキスト)
             ctx.fillStyle = inputs.tribeBattleColor.value;
             ctx.textAlign = 'center';
             ctx.font = '30px sans-serif';
-            ctx.fillText(`${inputs.tribeInput.value}`, 120, 775); // 種族
-            ctx.fillText(`${inputs.battleType.value}`, 330, 775); // 戦型
+            ctx.fillText(`${inputs.tribeInput.value}`, 120, 775); 
+            ctx.fillText(`${inputs.battleType.value}`, 330, 775);
 
-            // 3. 撃種 (アイコン) 
             if (iconImages.shotType.complete && iconImages.shotType.naturalWidth > 0) { 
                 ctx.drawImage(iconImages.shotType, 0, 575, 250, 250); 
             }
 
-            // 4. ラックスキル (アイコン) 
             const LUCK_ICON_POS_CANVAS = { x: 448, y: 738 }; 
             const LUCK_ICON_SIZE_CANVAS = 50; 
             if (iconImages.luckSkill.complete && iconImages.luckSkill.naturalWidth > 0) {
                 ctx.drawImage(iconImages.luckSkill, LUCK_ICON_POS_CANVAS.x, LUCK_ICON_POS_CANVAS.y, LUCK_ICON_SIZE_CANVAS, LUCK_ICON_SIZE_CANVAS); 
             }
 
-            // 5. メインステータス群 (テキスト) 
             ctx.font = '30px sans-serif'; 
             ctx.fillStyle = inputs.statsColor.value;
             ctx.textAlign = 'left';
             
-            ctx.fillText(inputs.stat1.value, 250, 600);  // HP
-            ctx.fillText(inputs.stat2.value, 250, 650);  // 攻撃力
-            ctx.fillText(inputs.stat3.value, 250, 700);  // スピード
+            ctx.fillText(inputs.stat1.value, 380, 600);
+            ctx.fillText(inputs.stat2.value, 350, 650);
+            ctx.fillText(inputs.stat3.value, 320, 700);
 
-            // 6. アビリティリスト (V49: 獣神化でも描画する)
             {
                 const numAbilities = abilities.length;
                 if (numAbilities > 0) {
@@ -1037,9 +986,9 @@
                         
                         let textStartX;
                         let maxWidth;
-                        const lineHeight = 35; // 行の高さ
+                        const lineHeight = 35; 
 
-                        let textAlignForABI = 'center'; // デフォルトは中央揃え
+                        let textAlignForABI = 'center'; 
 
                         const GAUGE_ICON_X = ABI_LEFT_X + 10; 
 
@@ -1048,11 +997,11 @@
                             ctx.drawImage(iconImages.abilityGauge, GAUGE_ICON_X, iconY, GAUGE_ICON_SIZE, GAUGE_ICON_SIZE); 
                             textStartX = GAUGE_ICON_X + GAUGE_ICON_SIZE + GAUGE_ICON_PADDING; 
                             maxWidth = ABI_LEFT_X + ABI_BOX_WIDTH - textStartX - GAUGE_ICON_PADDING; 
-                            textAlignForABI = 'left'; // ゲージアイコンがある場合は左寄せ
+                            textAlignForABI = 'left'; 
                         } else {
                             textStartX = ABI_LEFT_X + (ABI_BOX_WIDTH / 2); 
                             maxWidth = ABI_BOX_WIDTH - (GAUGE_ICON_PADDING * 2); 
-                            textAlignForABI = 'center'; // ゲージアイコンがない場合は中央揃え
+                            textAlignForABI = 'center'; 
                         } 
                         
                         autoResizeAndCenterText(
@@ -1061,21 +1010,18 @@
                     });
                 }
             }
-            
-            // 7. コネクトスキル / アシストスキル (真・改 のみ描画)
+
             if (isSHIN || isKAI) {
                 const connY = 356; 
-                const connLabelText = isKAI ? '' : ''; // 真・改の背景画像にラベルが含まれているため空に
+                const connLabelText = isKAI ? '' : ''; 
 
                 ctx.textAlign = 'center';
                 ctx.fillStyle = inputs.assistShotSsDescColor.value; 
-                
-                // コネクトスキル (改) または アシストスキル (真) の説明文を描画
+
                 if (isKAI) {
-                    // コネクトスキルの描画領域は、コネクトスキルリストに合わせて調整
                     const CONNECT_SKILL_AREA = { x: 740, y: connY, width: 680, height: 40 }; 
                     const connectedText = connectSkills.map(skill => skill.text).join(' / ');
-                    const lineHeight = 26; // コネクトスキルは小さめ
+                    const lineHeight = 26; 
 
                     autoResizeAndCenterText(
                         ctx, connectedText, 
@@ -1086,7 +1032,7 @@
                         30, 16, lineHeight, 'sans-serif', 'center'
                     );
                     
-                } else { // 真の場合
+                } else { 
                     const assistText = inputs.assistSkill_nonKai.value;
                     autoResizeAndCenterText(
                         ctx, assistText, 
@@ -1095,10 +1041,9 @@
                 }
             }
 
-            // 8. ショットスキル / 発動条件 (真・改 のみ描画)
             if (isSHIN || isKAI) {
                 const shotY = 442;
-                const shotLabelText = isKAI ? '' : ''; // 真・改の背景画像にラベルが含まれているため空に
+                const shotLabelText = isKAI ? '' : '';
                 const shotText = inputs.shotSkill_nonKai.value; 
                 
                 ctx.fillStyle = inputs.assistShotSsDescColor.value; 
@@ -1108,34 +1053,25 @@
                     1070, shotY, 50, 680, 40, 16, 26, 'sans-serif', 'center'
                 );
             }
-            
-            // 9. ストライクショット 
-            
-            // a. ターン数
+
             ctx.fillStyle = inputs.ssTurnColor.value;
             ctx.textAlign = 'center';
             ctx.font = '40px sans-serif';
             const ssTurn = `${inputs.ssTurn1.value}＋${inputs.ssTurn2.value}`;
             ctx.fillText(ssTurn, 604, ssDrawY + 14);
             
-
-            // b. 説明 
-            ctx.fillStyle = inputs.assistShotSsDescColor.value; 
+            ctx.fillStyle = inputs.ssDescColor.value;
             autoResizeAndCenterText(
                 ctx, inputs.strikeShotText.value, 
-                1070, ssDrawY - 63, 50, 680, 40, 27, 26, 'sans-serif', 'center'
+                1070, ssDrawY, -68, 680, 40, 16, 26, 'sans-serif', 'center'
                 );
-            
-            // 10. 友情コンボ (主)
-            
-            // a. 主 友情コンボ 属性アイコン (Y座標は mainComboDrawY (真・改 672 / 獣神化 490) )
+
             const mainAttrX = MAIN_COMBO_ATTR_POS_CANVAS.x; 
             const mainAttrY = MAIN_COMBO_ATTR_POS_CANVAS.y;
             if (iconImages.mainComboAttr.complete && iconImages.mainComboAttr.naturalWidth > 0) {
                  ctx.drawImage(iconImages.mainComboAttr, mainAttrX, mainAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS);
             }
 
-            // b. ユーザー追加画像の重ね合わせ (主友情)
             if (mainComboUserImage && mainComboUserImage.complete) {
                 const userX = parseInt(inputs.mainComboImageX.value, 10);
                 const userY = parseInt(inputs.mainComboImageY.value, 10);
@@ -1144,31 +1080,24 @@
                 
                 ctx.drawImage(mainComboUserImage, userX, userY, userWidth, userHeight); 
             }
-            
-            
-            // c. テキスト
+
             ctx.fillStyle = inputs.comboDescColor.value; 
             ctx.textAlign = 'left';
             autoResizeAndCenterText(
                 ctx, inputs.mainComboText.value, 
                 COMBO_TEXT_START_X, 
-                mainAttrY + 2, // アイコンと同じY位置を参照
-                65, // アイコンと同じ高さのエリア
+                mainAttrY, 
+                COMBO_ATTR_HEIGHT_CANVAS, 
                 COMBO_TEXT_MAX_WIDTH, 
                 40, 25, 26, 'sans-serif', 'left'
             );
-            
-            
-            // 11. 友情コンボ (副)
-            
-            // a. 副 友情コンボ 属性アイコン (Y座標は subComboDrawY (真・改 742 / 獣神化 580) )
+
             const subAttrX = SUB_COMBO_ATTR_POS_CANVAS.x; 
             const subAttrY = SUB_COMBO_ATTR_POS_CANVAS.y;
             if (iconImages.subComboAttr.complete && iconImages.subComboAttr.naturalWidth > 0) {
                 ctx.drawImage(iconImages.subComboAttr, subAttrX, subAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS); 
             }
 
-            // b. ユーザー追加画像の重ね合わせ (副友情)
             if (subComboUserImage && subComboUserImage.complete) {
                 const userX = parseInt(inputs.subComboImageX.value, 10);
                 const userY = parseInt(inputs.subComboImageY.value, 10);
@@ -1178,20 +1107,17 @@
                 ctx.drawImage(subComboUserImage, userX, userY, userWidth, userHeight); 
             }
 
-            // c. テキスト
             ctx.fillStyle = inputs.comboDescColor.value; 
             ctx.textAlign = 'left'; 
             autoResizeAndCenterText(
                 ctx, inputs.subComboText.value, 
                 COMBO_TEXT_START_X, 
-                subAttrY + 3, // アイコンと同じY位置を参照
-                65, // アイコンと同じ高さのエリア
+                subAttrY, 
+                COMBO_ATTR_HEIGHT_CANVAS, 
                 COMBO_TEXT_MAX_WIDTH, 
                 40, 20, 26, 'sans-serif', 'left'
             );
         }
-
-        // --- 5. イベントリスナーと初期化 ---
 
         function loadInitialImages() {
             abilities.push({ hasIcon: true, text: '超アンチダメージウォール' });
