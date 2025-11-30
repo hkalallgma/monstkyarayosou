@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 キャラクター設定ジェネレーター V70 (完全修正版)</title>
     <style>
-        /* 全体のリセットとレイアウト定義 */
         html, body {
             height: 100%;
             margin: 0;
@@ -123,7 +122,6 @@
             padding: 10px 0;
         }
 
-        /* --- アイコン選択肢 (丸型・画像) --- */
         .select-group { 
             display: flex; 
             flex-wrap: nowrap; 
@@ -140,14 +138,12 @@
         .select-group::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
         .select-group input[type="radio"] { display: none; }
         
-        /* アイコンボタンのスタイル（未選択時） */
         #input-controls .select-group label { 
             display: flex; 
             flex-shrink: 0; 
-            /* 透明な枠線で場所だけ確保 */
             border: 2px solid transparent; 
             background-color: transparent; 
-            border-radius: 50%; /* 正円 */
+            border-radius: 50%; 
             cursor: pointer; 
             transition: all 0.2s ease; 
             align-items: center; 
@@ -166,16 +162,15 @@
             height: 100%; 
             object-fit: contain; 
             display: block;
-            opacity: 0.6; /* 未選択時は少し薄く */
+            opacity: 0.6;
             transition: opacity 0.2s, transform 0.2s;
         }
         
-        /* ★アイコン選択時のスタイル（青枠・背景） */
         .select-group input[type="radio"]:checked + label { 
-            background-color: #eaf4fd !important; /* 薄い青背景 */
-            border-color: #3498db !important;     /* 青枠 */
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6) !important; /* 光彩 */
-            transform: scale(1.1); /* 少し拡大 */
+            background-color: #eaf4fd !important;
+            border-color: #3498db !important;   
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6) !important; 
+            transform: scale(1.1); 
         }
 
         .select-group input[type="radio"]:checked + label img {
@@ -183,7 +178,6 @@
             filter: none;
         }
 
-        /* --- テキストボタン群（撃種・戦型） --- */
         .text-btn-group {
             justify-content: flex-start; 
             gap: 15px; 
@@ -196,7 +190,7 @@
             height: auto; 
             border: 2px solid #ddd; 
             background-color: #fff;
-            border-radius: 8px; /* 角丸四角 */
+            border-radius: 8px;
             padding: 10px 0; 
             font-size: 15px;
             color: #555;
@@ -207,18 +201,16 @@
             cursor: pointer;
         }
 
-        /* ★テキストボタン選択時のスタイル */
         .text-btn-group input[type="radio"]:checked + label {
-            background-color: #eaf4fd !important; /* 薄い青 */
-            color: #1f618d !important; /* 濃い青文字 */
-            border: 2px solid #3498db !important; /* 青枠 */
+            background-color: #eaf4fd !important; 
+            color: #1f618d !important;
+            border: 2px solid #3498db !important;
             opacity: 1 !important; 
             transform: scale(1.05); 
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.5) !important; 
             font-weight: bold;
         }
 
-        /* --- 個別の配置調整 --- */
         #attributeSelect, 
         #luckSkillSelect {
             justify-content: space-between; 
@@ -262,14 +254,12 @@
         .ss-input-group { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
         .ss-input-group input { width: 80px !important; }
         
-        /* モーダル */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); padding-top: 60px; }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 8px; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .tribe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
         .tribe-grid button { padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 4px; font-size: 0.9rem;}
 
-        /* アビリティ欄 */
         #ability-controls { border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .ability-item { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         
@@ -320,7 +310,6 @@
 
         .add-btn { background-color: #2ecc71; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; margin-top: 5px; font-size: 1rem; cursor: pointer;}
 
-        /* PC向け調整 */
         @media (min-width: 1024px) {
             body { overflow: auto; display: block; }
             #generator-area { 
@@ -629,22 +618,20 @@
         const inputs = {
             charName: document.getElementById('charName'), 
             tribeInput: document.getElementById('tribeInput'), 
-            // battleTypeは関数内で取得
             assistSkill_nonKai: document.getElementById('assistSkill_nonKai'), shotSkill_nonKai: document.getElementById('shotSkill_nonKai'), 
             strikeShotText: document.getElementById('strikeShotText'), ssTurn1: document.getElementById('ssTurn1'), ssTurn2: document.getElementById('ssTurn2'),
             mainComboText: document.getElementById('mainComboText'), subComboText: document.getElementById('subComboText'),
             connectSkillCondition: document.getElementById('connectSkillCondition'),
             globalFont: document.getElementById('globalFont'),
-            
             charImageX: document.getElementById('charImageX'), charImageY: document.getElementById('charImageY'),
             charImageWidth: document.getElementById('charImageWidth'), charImageHeight: document.getElementById('charImageHeight'),
             mainComboImageX: document.getElementById('mainComboImageX'), 
-            mainComboImageY: document.getElementById('mainComboImageY'), // 真・改用
-            mainComboImageY_jyu: document.getElementById('mainComboImageY_jyu'), // 獣神化用
+            mainComboImageY: document.getElementById('mainComboImageY'), 
+            mainComboImageY_jyu: document.getElementById('mainComboImageY_jyu'), 
             mainComboWidth: document.getElementById('mainComboWidth'), mainComboHeight: document.getElementById('mainComboHeight'),
             subComboImageX: document.getElementById('subComboImageX'), 
-            subComboImageY: document.getElementById('subComboImageY'), // 真・改用
-            subComboImageY_jyu: document.getElementById('subComboImageY_jyu'), // 獣神化用
+            subComboImageY: document.getElementById('subComboImageY'), 
+            subComboImageY_jyu: document.getElementById('subComboImageY_jyu'), 
             subComboWidth: document.getElementById('subComboWidth'), subComboHeight: document.getElementById('subComboHeight'),
             
             ssY_shinKai: document.getElementById('ssY_shinKai'),
@@ -654,9 +641,6 @@
             ssY_jyu: document.getElementById('ssY_jyu'),
             mainComboY_jyu: document.getElementById('mainComboY_jyu'), 
             subComboY_jyu: document.getElementById('subComboY_jyu'),   
-            
-            // abiY_jyuなどは削除済み
-
             charNameColor: document.getElementById('charNameColor'), tribeBattleColor: document.getElementById('tribeBattleColor'),
             statsColor: document.getElementById('statsColor'), abilityColor: document.getElementById('abilityColor'),
             assistShotSsDescColor: document.getElementById('assistShotSsDescColor'), 
@@ -670,7 +654,7 @@
         const attributeSelectDiv = document.getElementById('attributeSelect');
         const numberSelectDiv = document.getElementById('numberSelect');
         const shotTypeSelectDiv = document.getElementById('shotTypeSelect');
-        const battleTypeSelectDiv = document.getElementById('battleTypeSelect'); // 追加
+        const battleTypeSelectDiv = document.getElementById('battleTypeSelect');
         const luckSkillSelectDiv = document.getElementById('luckSkillSelect');
         const abilityListDiv = document.getElementById('ability-list');
         const addAbilityBtn = document.getElementById('addAbilityBtn');
@@ -683,7 +667,6 @@
         const connectSkillControlsDiv = document.getElementById('connect-skill-controls');
         const connectSkillListDiv = document.getElementById('connect-skill-list');
         const addConnectSkillBtn = document.getElementById('addConnectSkillBtn');
-        // jyuAbiControlsDivは削除済み
         const customPosControlsDiv = document.getElementById('custom_pos_controls');
 
         const templateImage = new Image();
@@ -730,10 +713,8 @@
             if (imagesToLoad === 0 || imagesToLoad === imagesLoaded) { drawStatusImage(); }
         }
 
-        // ★フォント設定を一括適用するためのヘルパー関数
         function getGlobalFont(size) {
             const family = inputs.globalFont.value;
-            // 太さのラジオボタン取得
             const weight = document.querySelector('input[name="globalWeight"]:checked').value;
             return `${weight} ${size}px ${family}`;
         }
@@ -751,7 +732,6 @@
             let fontSize = initialSize;
             let finalLines = []; 
             
-            // ★グローバルフォントを使用
             ctx.font = getGlobalFont(fontSize);
             let textWidth = ctx.measureText(text).width;
 
@@ -1018,11 +998,7 @@
             const isKAI = selectedNumber === '改';
             const isJYU = selectedNumber === '獣神化';
             const isSHIN = selectedNumber === '真';
-            
-            // コネクトスキルリスト (改のみ表示)
             connectSkillControlsDiv.style.display = isKAI ? 'block' : 'none';
-
-            // 入力欄の取得
             const assistInput = document.getElementById('assistSkill_nonKai');
             const shotInput = document.getElementById('shotSkill_nonKai');
             const connectConditionInput = document.getElementById('connectSkillCondition');
@@ -1064,7 +1040,6 @@
                 kaiSkillColors.style.display = 'flex';
 
             } else {
-                // 獣神化
                 assistInput.style.display = 'none';
                 shotInput.style.display = 'none';
                 connectConditionInput.style.display = 'none';
@@ -1137,12 +1112,12 @@
             ctx.fillStyle = inputs.charNameColor.value; 
             autoResizeAndCenterText(
                 ctx, inputs.charName.value, 
-                235, 45, 30, 400, 40, 18, 26, '' // 名前はデフォルトフォント
+                235, 45, 30, 400, 40, 18, 26, ''
             );
 
             ctx.fillStyle = inputs.tribeBattleColor.value;
             ctx.textAlign = 'center';
-            ctx.font = getGlobalFont(30); // ★グローバルフォント適用
+            ctx.font = getGlobalFont(30); 
             ctx.fillText(`${inputs.tribeInput.value}`, 120, 765); 
             
             const selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
@@ -1186,7 +1161,6 @@
                         ctx.strokeRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
 
                         let fontSize = 40; 
-                        // ★グローバルフォント適用
                         ctx.font = getGlobalFont(fontSize);
                         
                         let textWidth = ctx.measureText(abi.text).width;
@@ -1242,7 +1216,7 @@
                         CONNECT_SKILL_AREA.y, 
                         CONNECT_SKILL_AREA.height, 
                         CONNECT_SKILL_AREA.width - 20, 
-                        30, 16, lineHeight, '', 'center' // ★グローバルフォント適用
+                        30, 16, lineHeight, '', 'center' 
                     );
                     
                 } else { 
@@ -1274,14 +1248,14 @@
 
             ctx.fillStyle = inputs.ssTurnColor.value;
             ctx.textAlign = 'center';
-            ctx.font = getGlobalFont(40); // ★グローバルフォント
+            ctx.font = getGlobalFont(40); 
             const ssTurn = `${inputs.ssTurn1.value}＋${inputs.ssTurn2.value}`;
             ctx.fillText(ssTurn, 604, ssDrawY + 2);
             
             ctx.fillStyle = inputs.ssDescColor.value;
             autoResizeAndCenterText(
                 ctx, inputs.strikeShotText.value, 
-                1070, ssDrawY, -68, 680, 40, 16, 26, '', 'center'
+                1070, ssDrawY, -68, 680, 40, 25, 26, '', 'center'
                 );
 
             const mainAttrX = MAIN_COMBO_ATTR_POS_CANVAS.x; 
@@ -1367,7 +1341,6 @@
         });
         document.getElementById('battleTypeSelect').addEventListener('change', drawStatusImage); 
         
-        // ★ラジオボタンの変更で即座に再描画
         document.querySelectorAll('input[name="globalWeight"]').forEach(radio => {
             radio.addEventListener('change', drawStatusImage);
         });
