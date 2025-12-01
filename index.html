@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 キャラクター設定ジェネレーター V70 (完全修正版)</title>
+    <title>🎮モンスト　キャラクター予想ジェネレーター</title>
     <style>
         html, body {
             height: 100%;
@@ -19,26 +19,36 @@
             flex-direction: column;
         }
 
-        h1 { 
-            color: #2c3e50; 
-            font-size: 1.1rem; 
-            margin: 10px 0; 
+        h1 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin: 10px 0;
             text-align: center;
-            flex-shrink: 0; 
+            flex-shrink: 0;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            gap: 10px;
+            padding: 0 15px; 
         }
         
-        #generator-area { 
+        .flex-spacer { 
+            flex-grow: 1; 
+            min-width: 10px;
+        }
+
+        #generator-area {
             display: flex;
             flex-direction: column;
-            flex-grow: 1; 
-            overflow: hidden; 
+            flex-grow: 1;
+            overflow: hidden;
             gap: 0;
             margin: 0;
         }
 
-        #canvas-area { 
-            flex-shrink: 0; 
-            width: 100%; 
+        #canvas-area {
+            flex-shrink: 0;
+            width: 100%;
             background-color: #e0e0e0;
             padding: 10px;
             box-sizing: border-box;
@@ -51,31 +61,32 @@
 
         #statusCanvas {
             max-width: 100%;
-            max-height: 30vh; 
+            max-height: 30vh;
             width: auto;
             height: auto;
             display: inline-block;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        #downloadBtn {
-            margin: 5px auto 0;
+        #downloadBtn, #postToXBtn { 
+            margin: 5px 5px 0;
             padding: 6px 15px;
             font-size: 0.85rem;
-            background-color: #e74c3c;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             display: inline-block;
         }
+        #downloadBtn { background-color: #e74c3c; }
+        #postToXBtn { background-color: #000000; }
 
-        #input-controls { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            padding: 15px; 
-            padding-bottom: 80px; 
-            background: #fff; 
+        #input-controls {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 80px;
+            background: #fff;
             width: 100%;
             box-sizing: border-box;
         }
@@ -84,8 +95,8 @@
         #input-controls h3 { font-size: 1rem; margin-top: 15px; margin-bottom: 5px; }
 
         #input-controls label {
-            display: block; 
-            margin-bottom: 5px; 
+            display: block;
+            margin-bottom: 5px;
             width: 100%;
             box-sizing: border-box;
             font-weight: bold;
@@ -96,12 +107,12 @@
         #input-controls input[type="text"],
         #input-controls input[type="number"],
         #input-controls select {
-            display: block; 
-            margin-bottom: 10px; 
+            display: block;
+            margin-bottom: 10px;
             width: 100%;
             box-sizing: border-box;
-            padding: 12px 10px; 
-            font-size: 16px;    
+            padding: 12px 10px;
+            font-size: 16px; 
             border: 1px solid #ccc;
             border-radius: 6px;
             background-color: #fff;
@@ -122,15 +133,15 @@
             padding: 10px 0;
         }
 
-        .select-group { 
-            display: flex; 
-            flex-wrap: nowrap; 
-            overflow-x: auto; 
-            width: 100%; 
-            margin-top: 5px; 
-            margin-bottom: 15px; 
-            padding: 5px 2px 10px 2px; 
-            -webkit-overflow-scrolling: touch; 
+        .select-group {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding: 5px 2px 10px 2px;
+            -webkit-overflow-scrolling: touch;
             box-sizing: border-box;
         }
 
@@ -138,103 +149,103 @@
         .select-group::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
         .select-group input[type="radio"] { display: none; }
         
-        #input-controls .select-group label { 
-            display: flex; 
-            flex-shrink: 0; 
-            border: 2px solid transparent; 
-            background-color: transparent; 
-            border-radius: 50%; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            align-items: center; 
-            justify-content: center; 
-            width: 44px; 
-            height: 44px; 
-            padding: 2px; 
+        #input-controls .select-group label {
+            display: flex;
+            flex-shrink: 0;
+            border: 2px solid transparent;
+            background-color: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 2px;
             box-sizing: border-box;
-            box-shadow: none;    
+            box-shadow: none;  
             margin-top: 0;
             font-weight: normal;
         }
         
-        .select-group label img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
+        .select-group label img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             display: block;
             opacity: 0.6;
             transition: opacity 0.2s, transform 0.2s;
         }
         
-        .select-group input[type="radio"]:checked + label { 
+        .select-group input[type="radio"]:checked + label {
             background-color: #eaf4fd !important;
             border-color: #3498db !important;   
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6) !important; 
-            transform: scale(1.1); 
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6) !important;
+            transform: scale(1.1);
         }
 
         .select-group input[type="radio"]:checked + label img {
-            opacity: 1.0; 
+            opacity: 1.0;
             filter: none;
         }
 
         .text-btn-group {
-            justify-content: flex-start; 
-            gap: 15px; 
+            justify-content: flex-start;
+            gap: 15px;
             padding: 10px;
         }
 
         #input-controls .text-btn-group label {
             width: auto;
-            min-width: 80px; 
-            height: auto; 
-            border: 2px solid #ddd; 
+            min-width: 80px;
+            height: auto;
+            border: 2px solid #ddd;
             background-color: #fff;
             border-radius: 8px;
-            padding: 10px 0; 
+            padding: 10px 0;
             font-size: 15px;
             color: #555;
             text-align: center;
-            opacity: 0.8; 
-            transition: all 0.2s ease; 
+            opacity: 0.8;
+            transition: all 0.2s ease;
             margin-top: 0;
             cursor: pointer;
         }
 
         .text-btn-group input[type="radio"]:checked + label {
-            background-color: #eaf4fd !important; 
+            background-color: #eaf4fd !important;
             color: #1f618d !important;
             border: 2px solid #3498db !important;
-            opacity: 1 !important; 
-            transform: scale(1.05); 
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5) !important; 
+            opacity: 1 !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5) !important;
             font-weight: bold;
         }
 
-        #attributeSelect, 
+        #attributeSelect,
         #luckSkillSelect {
-            justify-content: space-between; 
+            justify-content: space-between;
             padding-left: 25px;   
             padding-right: 25px;  
         }
 
         #numberSelect {
-            justify-content: center; 
-            gap: 30px; 
+            justify-content: center;
+            gap: 30px;
             padding-left: 0;
         }
 
-        #mainComboAttributeSelect, 
+        #mainComboAttributeSelect,
         #subComboAttributeSelect {
             justify-content: space-between;
-            gap: 0; 
+            gap: 0;
             padding-left: 2px;
             padding-right: 2px;
         }
 
-        .pos-size-group { 
-            margin-bottom: 15px; 
-            border: 1px solid #eee; 
+        .pos-size-group {
+            margin-bottom: 15px;
+            border: 1px solid #eee;
             padding: 10px;
             border-radius: 4px;
             background-color: #fafafa;
@@ -263,17 +274,17 @@
         #ability-controls { border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .ability-item { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         
-        #input-controls .ability-item label { 
-            width: auto; 
-            font-size: 0.9rem; 
-            margin: 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 2px; 
-            cursor: pointer; 
-            border: none; 
-            background: none; 
-            height: 46px; 
+        #input-controls .ability-item label {
+            width: auto;
+            font-size: 0.9rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            height: 46px;
             padding: 0;
             color: #333;
         }
@@ -284,22 +295,22 @@
             cursor: pointer;
         }
         
-        .ability-item input[type="text"] { 
-            flex-grow: 1; 
-            margin: 0; 
+        .ability-item input[type="text"] {
+            flex-grow: 1;
+            margin: 0;
             height: 46px;
             padding: 0 10px;
             box-sizing: border-box;
         }
         
-        .ability-item button { 
-            background-color: #e74c3c; 
-            color: white; 
-            border: none; 
-            padding: 0 15px; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            height: 46px; 
+        .ability-item button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 46px;
             font-size: 1.2rem;
             margin: 0;
             box-sizing: border-box;
@@ -310,53 +321,86 @@
 
         .add-btn { background-color: #2ecc71; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; margin-top: 5px; font-size: 1rem; cursor: pointer;}
 
+        .reset-btn { 
+            background-color: #95a5a6; 
+            color: white; 
+            padding: 10px; 
+            width: 100%; 
+            border: none; 
+            border-radius: 4px; 
+            margin-top: 10px; 
+            font-size: 0.9rem; 
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .reset-btn:hover { background-color: #7f8c8d; }
+
+        #helpBtn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background-color: #5abdff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        #helpModal ul { padding-left: 20px; }
+        #helpModal li { margin-bottom: 8px; font-size: 0.95rem; }
+        #helpModal h4 { margin-top: 15px; font-size: 1.05rem; color: #2c3e50; }
+
         @media (min-width: 1024px) {
             body { overflow: auto; display: block; }
-            #generator-area { 
+            #generator-area {
                 flex-direction: row; align-items: flex-start; overflow: visible; gap: 30px; padding: 20px; max-width: 1200px; margin: 0 auto;
             }
-            #canvas-area { 
+            #canvas-area {
                 position: sticky; top: 20px; width: 50%; max-width: 600px; background: none; padding: 0; box-shadow: none;
             }
             #statusCanvas { max-height: none; width: 100%; }
-            #input-controls { 
-                width: 50%; max-height: 90vh; padding-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            #input-controls {
+                width: 50%; max-height: 90vh; padding-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
-            h1 { text-align: left; padding-left: 20px; max-width: 1200px; margin: 20px auto; }
+            h1 { 
+                padding: 20px 20px 0; 
+                margin: 20px auto; 
+                max-width: 1200px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>キャラクター予想ジェネレーター</h1>
+    <h1>
+        <span>キャラクター予想ジェネレーター</span>
+        <span class="flex-spacer"></span>
+        <button id="helpBtn" title="ジェネレーターの利用方法と各項目の説明を表示します。">説明</button>
+    </h1>
     
     <div id="generator-area">
         
         <div id="canvas-area">
             <h2>プレビュー</h2>
             <canvas id="statusCanvas" width="1440" height="810"></canvas>
-            <button id="downloadBtn">画像をダウンロード (PNG)</button>
+            <button id="downloadBtn">⬇画像をダウンロード (PNG)</button>
+            <button id="postToXBtn">Xに投稿</button>
         </div>
 
         <div id="input-controls">
             <div style="background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
                 <h3 style="margin-top:0; border-bottom: none;">全体設定</h3>
-                <label>文字フォント:</label>
-                <select id="globalFont">
-                    <option value="sans-serif">ゴシック体 (標準)</option>
-                    <option value="serif">明朝体</option>
-                    <option value="'Arial Black', sans-serif">Arial Black (太め)</option>
-                    <option value="'Verdana', sans-serif">Verdana</option>
-                </select>
-                <label>文字の太さ:</label>
+                
+                <label title="文字の太さを変更します。通常または太字が選択できます。">文字の太さ:</label>
                 <div class="select-group text-btn-group" style="margin-bottom:0;">
                     <input type="radio" id="weight_normal" name="globalWeight" value="normal"><label for="weight_normal">通常</label>
                     <input type="radio" id="weight_bold" name="globalWeight" value="bold" checked><label for="weight_bold">太字</label>
                 </div>
+                <button id="resetBtn" class="reset-btn">全設定をリセット</button>
             </div>
 
-            <h2>基本設定</h2>
+            <h2>キャラ設定</h2>
             
-            <label>【属性】</label>
+            <label title="キャラクターのメイン属性を選択します。テンプレートの背景とアイコンが変化します。">【属性】</label>
             <div id="attributeSelect" class="select-group">
                 <input type="radio" id="attr_fire" name="attribute" value="火" checked><label for="attr_fire"><img src="attr_fire.png" alt="火"></label>
                 <input type="radio" id="attr_water" name="attribute" value="水"><label for="attr_water"><img src="attr_water.png" alt="水"></label>
@@ -365,42 +409,42 @@
                 <input type="radio" id="attr_dark" name="attribute" value="闇"><label for="attr_dark"><img src="attr_dark.png" alt="闇"></label>
             </div>
             
-            <label>【進化形態】</label>
+            <label title="レイアウトのタイプを選択します。『真』：真獣神化風、『改』：獣神化・改風、『獣神化』：獣神化風">【進化形態】</label>
             <div id="numberSelect" class="select-group">
                 <input type="radio" id="num_shin" name="number" value="真" checked><label for="num_shin"><img src="type_kami.png" alt="真"></label>
                 <input type="radio" id="num_kai" name="number" value="改"><label for="num_kai"><img src="type_shin.png" alt="改"></label>
                 <input type="radio" id="num_jyu" name="number" value="獣神化"><label for="num_jyu"><img src="type_chou.png" alt="獣"></label>
             </div>
             
-            <label for="charName">【キャラ名】</label>
+            <label for="charName" title="キャンバス中央下に表示されるキャラクターの名称を入力します。長いと自動で文字が小さくなります。">【キャラ名】</label>
             <input type="text" id="charName" placeholder="キャラクター名を入力">
             
             <div class="color-setting-group">
-                <label for="charNameColor">🎨 文字色</label>
+                <label for="charNameColor" title="キャラ名の文字色を変更します。">🎨 文字色</label>
                 <input type="color" id="charNameColor" value="#000000">
             </div>
 
-            <label for="charImageUpload">【キャラ画像挿入】</label>
+            <label for="charImageUpload" title="表示させたいキャラクターの画像をアップロードします。PNG/JPEGに対応。">【キャラ画像挿入】</label>
             <input type="file" id="charImageUpload" accept="image/*">
             
             <div id="charImgSettings" class="pos-size-group" style="display: none;">
                 <label>【画像の描画位置・サイズ】</label>
                 <div class="pos-row">
-                    <span>X座標</span> <input type="number" id="charImageX" value="22" min="-500" max="1440">
-                    <span>Y座標</span> <input type="number" id="charImageY" value="150" min="-500" max="810">
+                    <span>X座標</span> <input type="number" id="charImageX" value="22" min="-500" max="1440" title="画像の横位置（左端）を調整します。">
+                    <span>Y座標</span> <input type="number" id="charImageY" value="150" min="-500" max="810" title="画像の縦位置（上端）を調整します。">
                 </div>
                 <div class="size-row">
-                    <span>幅</span> <input type="number" id="charImageWidth" value="480" min="1" max="1000">
-                    <span>高さ</span> <input type="number" id="charImageHeight" value="480" min="1" max="1000">
+                    <span>幅</span> <input type="number" id="charImageWidth" value="480" min="1" max="1000" title="画像の幅（横サイズ）を調整します。">
+                    <span>高さ</span> <input type="number" id="charImageHeight" value="480" min="1" max="1000" title="画像の高さ（縦サイズ）を調整します。">
                 </div>
             </div>
             <br>
 
-            <label>【種族】</label>
+            <label title="キャラクターの種族名を入力します。ボタンから選択肢を選ぶことも可能です。">【種族】</label>
             <input type="text" id="tribeInput" value="亜人" readonly>
             <button id="tribeBtn">種族を選択</button>
 
-            <label>【戦型】</label>
+            <label title="キャラクターの戦型を選択します。">【戦型】</label>
             <div id="battleTypeSelect" class="select-group text-btn-group">
                 <input type="radio" id="type_balance" name="battleType" value="バランス" checked><label for="type_balance">バランス</label>
                 <input type="radio" id="type_speed" name="battleType" value="スピード"><label for="type_speed">スピード</label>
@@ -409,17 +453,17 @@
             </div>
             
             <div class="color-setting-group">
-                <label for="tribeBattleColor">🎨 カラー</label>
+                <label for="tribeBattleColor" title="種族名と戦型名の文字色を変更します。">🎨 カラー</label>
                 <input type="color" id="tribeBattleColor" value="#000000">
             </div>
 
-            <label>【撃種】</label>
+            <label title="キャラクターの撃種（反射/貫通）を選択します。アビリティにゲージがあるかどうかで撃種アイコンの枠デザインが変化します。">【撃種】</label>
             <div id="shotTypeSelect" class="select-group text-btn-group">
                 <input type="radio" id="shot_reflect" name="shotType" value="reflect" checked><label for="shot_reflect">反射</label>
                 <input type="radio" id="shot_pierce" name="shotType" value="pierce"><label for="shot_pierce">貫通</label>
             </div>
             
-            <label>【ラックスキル】</label>
+            <label title="ラックスキルアイコンを選択します。">【ラックスキル】</label>
             <div id="luckSkillSelect" class="select-group">
                 <input type="radio" id="luck_guide" name="luckSkill" value="ガイド" checked><label for="luck_guide"><img src="luck_guide.png" alt="ガイド"></label>
                 <input type="radio" id="luck_yucri" name="luckSkill" value="友クリ"><label for="luck_yucri"><img src="luck_yucri.png" alt="友クリ"></label>
@@ -435,20 +479,20 @@
                 <h3>🔴 SS/友情 Y座標調整 (高度な設定)</h3>
                 <div class="pos-size-group">
                     <h4>真・改 SS/友情 描画Y座標 (px)</h4>
-                    <label>真・改 ストライクショット Y (上端):</label><input type="number" id="ssY_shinKai" value="626" min="400" max="700">
+                    <label>真・改 ストライクショット Y (上端):</label><input type="number" id="ssY_shinKai" value="626" min="400" max="700" title="真/改形態のSSターン数を表示するY座標を調整します。">
                     <label>真・改 友情コンボ（主/副） Y (上端):</label>
                     <div class="pos-row">
-                        <span>主 Y:</span> <input type="number" id="mainComboY_shinKai" value="662" min="600" max="800">
-                        <span>副 Y:</span> <input type="number" id="subComboY_shinKai" value="727" min="600" max="800">
+                        <span>主 Y:</span> <input type="number" id="mainComboY_shinKai" value="662" min="600" max="800" title="真/改形態の主友情コンボを配置するY座標を調整します。">
+                        <span>副 Y:</span> <input type="number" id="subComboY_shinKai" value="727" min="600" max="800" title="真/改形態の副友情コンボを配置するY座標を調整します。">
                     </div>
                 </div>
                 <div class="pos-size-group">
                     <h4>獣神化 SS/友情 描画Y座標 (px)</h4>
-                    <label>獣神化 ストライクショット Y (上端):</label><input type="number" id="ssY_jyu" value="560" min="0" max="450">
+                    <label>獣神化 ストライクショット Y (上端):</label><input type="number" id="ssY_jyu" value="560" min="0" max="450" title="獣神化形態のSSターン数を表示するY座標を調整します。">
                     <label>獣神化 友情コンボ（主/副） Y (上端):</label>
                     <div class="pos-row">
-                        <span>主 Y:</span> <input type="number" id="mainComboY_jyu" value="622" min="400" max="800">
-                        <span>副 Y:</span> <input type="number" id="subComboY_jyu" value="715" min="400" max="800">
+                        <span>主 Y:</span> <input type="number" id="mainComboY_jyu" value="622" min="400" max="800" title="獣神化形態の主友情コンボを配置するY座標を調整します。">
+                        <span>副 Y:</span> <input type="number" id="subComboY_jyu" value="715" min="400" max="800" title="獣神化形態の副友情コンボを配置するY座標を調整します。">
                     </div>
                 </div>
             </div>
@@ -456,69 +500,69 @@
 
             <div id="ability-controls">
                 <div class="color-setting-group">
-                    <label for="abilityBoxBgColor">🎨背景カラー</label>
+                    <label for="abilityBoxBgColor" title="アビリティ枠の背景色を変更します。">🎨背景カラー</label>
                     <input type="color" id="abilityBoxBgColor" value="#ffcccc">
-                    <label for="abilityBoxBorderColor">🎨枠カラー</label>
+                    <label for="abilityBoxBorderColor" title="アビリティ枠の境界線色を変更します。">🎨枠カラー</label>
                     <input type="color" id="abilityBoxBorderColor" value="#ff0000">
                 </div>
                 
                 <label>ゲージ有無/アビリティ入力欄</label>
                 <div id="ability-list">
                     </div>
-                <button class="add-btn" id="addAbilityBtn">＋ アビリティを追加</button>
+                <button class="add-btn" id="addAbilityBtn" title="アビリティを最大8つまで追加できます。">＋ アビリティを追加</button>
 
             </div>
             <div class="color-setting-group">
-                <label for="abilityColor">🎨 文字カラー</label>
+                <label for="abilityColor" title="アビリティの文字色を変更します。">🎨 文字カラー</label>
                 <input type="color" id="abilityColor" value="#000000">
             </div>
             
-            <label id="assistSkillLabel">【アシストスキル】</label>
+            <label id="assistSkillLabel" title="真獣神化形態の場合、アシストスキルを入力します。">【アシストスキル】</label>
             <div id="assistSkillArea">
                 <div id="connect-skill-controls" style="display: none; border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-top: 10px;">
                     <label>【コネクトスキル入力欄】</label>
                     <div id="connect-skill-list">
                     </div>
-                    <button class="add-btn" id="addConnectSkillBtn">＋ コネクトスキルを追加</button>
+                    <button class="add-btn" id="addConnectSkillBtn" title="コネクトスキルを最大4つまで追加できます。">＋ コネクトスキルを追加</button>
                 </div>
             </div>
             
-            <input type="text" id="assistSkill_nonKai" placeholder="アシストスキルを入力"> 
+            <input type="text" id="assistSkill_nonKai" placeholder="アシストスキルを入力">
             
-            <label for="shotSkill" id="shotSkillLabel">【ショットスキル】</label>
+            <label for="shotSkill" id="shotSkillLabel" title="真獣神化形態の場合、ショットスキルを入力します。">【ショットスキル】</label>
             <input type="text" id="shotSkill_nonKai" placeholder="ショットスキルを入力">
             
-            <input type="text" id="connectSkillCondition" placeholder="発動条件を入力" style="display: none;">
+            <input type="text" id="connectSkillCondition" placeholder="発動条件を入力" style="display: none;" title="獣神化・改形態の場合、コネクトスキルの発動条件を入力します。">
             
             <div id="shinSkillColors" class="color-setting-group">
-                <label for="assistShotSsDescColor">🎨 カラー</label>
+                <label for="assistShotSsDescColor" title="アシストスキル、ショットスキルの文字色です。">🎨 カラー</label>
                 <input type="color" id="assistShotSsDescColor" value="#FFFFFF">
             </div>
 
             <div id="kaiSkillColors" class="color-setting-group" style="display:none;">
-                <label for="connectSkillColor">🎨 コネクトカラー</label>
+                <label for="connectSkillColor" title="コネクトスキル名の文字色です。">🎨 コネクトカラー</label>
                 <input type="color" id="connectSkillColor" value="#FFFFFF">
-                <label for="connectConditionColor">🎨 条件カラー</label>
+                <label for="connectConditionColor" title="コネクトスキル発動条件の文字色です。">🎨 条件カラー</label>
                 <input type="color" id="connectConditionColor" value="#FFFFFF">
             </div>
 
 
             <h2>【ストライクショット】</h2>
-            <label>〈ターン数〉</label>
+            <label title="SSのターン数を入力します。">〈ターン数〉</label>
             <div class="ss-input-group">
-                <input type="number" id="ssTurn1" value="10" min="1" max="99">
+                <input type="number" id="ssTurn1" value="10" min="1" max="99" title="1段階目のターン数を入力します。">
                 <span class="ss-separator">＋</span>
-                <input type="number" id="ssTurn2" value="10" min="1" max="99">
+                <input type="number" id="ssTurn2" value="10" min="1" max="99" title="2段階目のターン数を入力します。">
             </div>
             <div class="color-setting-group">
-                <label for="ssTurnColor">🎨 カラー</label>
+                <label for="ssTurnColor" title="ストライクショットのターン数表示の文字色です。">🎨 カラー</label>
                 <input type="color" id="ssTurnColor" value="#">
             </div>
-            <label for="strikeShotText">〈ストライクショット内容〉</label>
+            <label for="strikeShotText" title="ストライクショットの内容（説明文）を入力します。長い場合は自動で改行されます。">〈ストライクショット内容〉</label>
             <input type="text" id="strikeShotText" placeholder="ストライクショットを入力">
             
             <div class="color-setting-group">
-                <label for="ssDescColor">🎨 カラー</label>
+                <label for="ssDescColor" title="ストライクショット内容の文字色です。">🎨 カラー</label>
                 <input type="color" id="ssDescColor" value="#000000">
             </div>
             
@@ -527,38 +571,38 @@
             <h2>【友情コンボ】</h2>
             
             <h3>〈主 友情コンボ〉</h3>
-            <label>　属性選択</label>
+            <label title="主友情コンボの属性アイコンを選択します。">　属性選択</label>
             <div id="mainComboAttributeSelect" class="select-group combo-attr-select-group">
                 <input type="radio" id="main_attr_fire" name="mainComboAttribute" value="火" checked><label for="main_attr_fire"><img src="attr_fire_combo.png" alt="火"></label>
                 <input type="radio" id="main_attr_water" name="mainComboAttribute" value="水"><label for="main_attr_water"><img src="attr_water_combo.png" alt="水"></label>
-                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="main_attr_wood"><img src="attr_wood_combo.png" alt="木"></label>
-                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="main_attr_light"><img src="attr_light_combo.png" alt="光"></label>
-                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="main_attr_dark"><img src="attr_dark_combo.png" alt="闇"></label>
+                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="attr_wood"><img src="attr_wood.png" alt="木"></label>
+                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="attr_light"><img src="attr_light.png" alt="光"></label>
+                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="attr_dark"><img src="attr_dark.png" alt="闇"></label>
                 <input type="radio" id="main_attr_none" name="mainComboAttribute" value="無"><label for="main_attr_none"><img src="attr_none_combo.png" alt="無"></label>
                 <input type="radio" id="main_attr_all" name="mainComboAttribute" value="全"><label for="main_attr_all"><img src="attr_all_combo.png" alt="全"></label>
             </div>
 
-            <label for="mainComboText">〈主友情コンボ内容〉</label>
+            <label for="mainComboText" title="主友情コンボの内容を入力します。長い場合は自動で改行されます。">〈主友情コンボ内容〉</label>
             <input type="text" id="mainComboText" placeholder="主友情コンボを入力">
             
-            <label for="mainComboImageUpload">〈友情コンボアイコンを挿入〉</label>
+            <label for="mainComboImageUpload" title="カスタムの友情コンボアイコンを挿入します。">〈友情コンボアイコンを挿入〉</label>
             <input type="file" id="mainComboImageUpload" accept="image/*">
             
             <div id="mainComboImageSettings" class="pos-size-group" style="display: none;">
                 <label>【画像の描画位置・サイズ】</label>
                 <div class="pos-row">
-                    <span>X座標</span> <input type="number" id="mainComboImageX" value="786" min="0" max="1440">
-                    <span class="y-label-shinkai">Y座標</span> <input type="number" id="mainComboImageY" class="input-shinkai" value="669" min="0" max="810">
-                    <span class="y-label-jyu" style="display:none;">Y座標</span> <input type="number" id="mainComboImageY_jyu" class="input-jyu" value="629" min="0" max="810" style="display:none;">
+                    <span>X座標</span> <input type="number" id="mainComboImageX" value="786" min="0" max="1440" title="カスタムアイコンの横位置（左端）を調整します。">
+                    <span class="y-label-shinkai">Y座標</span> <input type="number" id="mainComboImageY" class="input-shinkai" value="669" min="0" max="810" title="真/改形態でのカスタムアイコンの縦位置を調整します。">
+                    <span class="y-label-jyu" style="display:none;">Y座標</span> <input type="number" id="mainComboImageY_jyu" class="input-jyu" value="629" min="0" max="810" style="display:none;" title="獣神化形態でのカスタムアイコンの縦位置を調整します。">
                 </div>
                 <div class="size-row">
-                    <span>幅</span> <input type="number" id="mainComboWidth" value="55" min="1" max="500">
-                    <span>高さ</span> <input type="number" id="mainComboHeight" value="55" min="1" max="500">
+                    <span>幅</span> <input type="number" id="mainComboWidth" value="55" min="1" max="500" title="カスタムアイコンの幅（横サイズ）を調整します。">
+                    <span>高さ</span> <input type="number" id="mainComboHeight" value="55" min="1" max="500" title="カスタムアイコンの高さ（縦サイズ）を調整します。">
                 </div>
             </div>
             
             <h3>〈副 友情コンボ〉</h3>
-            <label>　属性選択</label>
+            <label title="副友情コンボの属性アイコンを選択します。">　属性選択</label>
             <div id="subComboAttributeSelect" class="select-group combo-attr-select-group">
                 <input type="radio" id="sub_attr_fire" name="subComboAttribute" value="火"><label for="sub_attr_fire"><img src="attr_fire_combo.png" alt="火"></label>
                 <input type="radio" id="sub_attr_water" name="subComboAttribute" value="水"><label for="sub_attr_water"><img src="attr_water_combo.png" alt="水"></label>
@@ -569,27 +613,27 @@
                 <input type="radio" id="sub_attr_all" name="subComboAttribute" value="全"><label for="sub_attr_all"><img src="attr_all_combo.png" alt="全"></label>
             </div>
 
-            <label for="subComboText">〈副友情コンボ内容〉</label>
+            <label for="subComboText" title="副友情コンボの内容を入力します。長い場合は自動で改行されます。">〈副友情コンボ内容〉</label>
             <input type="text" id="subComboText" placeholder="副友情コンボを入力">
 
-            <label for="subComboImageUpload">〈友情コンボアイコンを挿入〉</label>
+            <label for="subComboImageUpload" title="カスタムの副友情コンボアイコンを挿入します。">〈友情コンボアイコンを挿入〉</label>
             <input type="file" id="subComboImageUpload" accept="image/*">
             
             <div id="subComboImageSettings" class="pos-size-group" style="display: none;">
                 <label>【画像の描画位置・サイズ】</label>
                 <div class="pos-row">
-                    <span>X座標</span> <input type="number" id="subComboImageX" value="786" min="0" max="1440">
-                    <span class="y-label-shinkai">Y座標</span> <input type="number" id="subComboImageY" class="input-shinkai" value="735" min="0" max="810">
-                    <span class="y-label-jyu" style="display:none;">Y座標</span> <input type="number" id="subComboImageY_jyu" class="input-jyu" value="723" min="0" max="810" style="display:none;">
+                    <span>X座標</span> <input type="number" id="subComboImageX" value="786" min="0" max="1440" title="カスタムアイコンの横位置（左端）を調整します。">
+                    <span class="y-label-shinkai">Y座標</span> <input type="number" id="subComboImageY" class="input-shinkai" value="735" min="0" max="810" title="真/改形態でのカスタムアイコンの縦位置を調整します。">
+                    <span class="y-label-jyu" style="display:none;">Y座標</span> <input type="number" id="subComboImageY_jyu" class="input-jyu" value="723" min="0" max="810" style="display:none;" title="獣神化形態でのカスタムアイコンの縦位置を調整します。">
                 </div>
                 <div class="size-row">
-                    <span>幅</span> <input type="number" id="subComboWidth" value="55" min="1" max="500">
-                    <span>高さ</span> <input type="number" id="subComboHeight" value="55" min="1" max="500">
+                    <span>幅</span> <input type="number" id="subComboWidth" value="55" min="1" max="500" title="カスタムアイコンの幅（横サイズ）を調整します。">
+                    <span>高さ</span> <input type="number" id="subComboHeight" value="55" min="1" max="500" title="カスタムアイコンの高さ（縦サイズ）を調整します。">
                 </div>
             </div>
             
             <div class="color-setting-group">
-                <label for="comboDescColor">🎨 カラー</label>
+                <label for="comboDescColor" title="友情コンボ内容の文字色です。">🎨 カラー</label>
                 <input type="color" id="comboDescColor" value="#000000">
             </div>
         </div>
@@ -603,8 +647,68 @@
             </div>
         </div>
     </div>
+    
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeHelpModal">&times;</span>
+            <h3>利用ガイド</h3>
+            
+            <h4>【自動保存と注意点】</h4>
+            <p>すべてのご入力内容は、ご利用のブラウザに自動で保存されます。次回アクセス時も続きから編集できますが、ブラウザの設定やキャッシュクリアなどによりデータが失われる可能性があります。ご注意ください。</p>
+
+            <h4>【全体設定】</h4>
+            <ul>
+                <li>文字の太さ: 画像全体で使用するフォントの太さを変更できます。</li>
+                <li>全設定をリセット: 入力したすべての内容を初期状態に戻し、自動保存されたデータも削除します。ボタンを押すと確認メッセージが表示されます。リセットしたい場合は「OK」、誤操作の場合は「キャンセル」を押してください。</li>
+            </ul>
+
+            <h4>【基本入力（テキスト欄）】</h4>
+            <p>以下の項目は、テキストボックスに入力した内容がプレビュー画面の対応箇所に直接表示されます。</p>
+            <ul>
+                <li>キャラ名</li>
+                <li>ストライクショットのターン数と内容</li>
+                <li>主（副）友情コンボ内容</li>
+                <li>真獣神化の場合: アシストスキル、ショットスキル</li>
+                <li>獣神化改の場合: コネクトスキルの発動条件</li>
+            </ul>
+
+            <h4>【戦型 / 撃種 / ラックスキル / 友情コンボ属性】</h4>
+            <ul>
+                <li>アイコンや文字を選択するとプレビューに反映されます。</li>
+                <li>撃種のアイコン: アビリティ欄のゲージの有無チェックボックスを一つでも選択している場合、撃種アイコンは「反射/貫通（&ゲージ）」のデザインに自動で切り替わります。</li>
+            </ul>
+            
+            <h4>【アビリティ / コネクトスキル】</h4>
+            <ul>
+                <li>ゲージの有無: 左のチェックボックスを選択すると、そのアビリティ名の横にゲージアイコンが表示されます。</li>
+                <li>入力内容: テキストボックスにアビリティ名やコネクトスキル内容を入力するとプレビューに反映されます。</li>
+                <li>追加 / 削除: 「アビリティを追加」で数を増やせます。テキストボックス右の「✖︎」ボタンで個別に削除できます。</li>
+            </ul>
+
+            <h4>【画像挿入について】</h4>
+            <ul>
+                <li>ファイル選択: 「ファイルを選択」から各自で用意した画像をアップロードするとプレビューに表示されます。</li>
+                <li>位置・サイズ設定: 画像挿入後、　X/Y座標、幅/高さ　の設定画面が現れます。位置はデフォルトで調整済みですが、微調整が可能です。</li>
+            </ul>
+
+            <h4>【画像ダウンロードとX投稿】</h4>
+            <ul>
+                <li>画像をダウンロード: プレビュー画面の画像をPNG形式で保存します。</li>
+                <li>Xに投稿: 画像を自動でダウンロードし、Xの投稿画面を開きます。ダウンロードした画像をご自身で添付して投稿してください。</li>
+            </ul>
+            <h4>【カラー設定（文字色・枠色）について】</h4>
+            <p>色のついたボックスをタップすることで変更できます</p>
+            <p>全てのカラー設定は、設定項目に連動した特定の文字や枠のみに反映されます。</p>
+            
+            <h4>【作成者Xアカウント】</h4>
+            <a href="https://x.com/mijeentlnq39093?s=21&t=sNgfAjLPVPtH81K8y4iZfw" target="_blank" rel="noopener noreferrer">Xを開く</a>
+            <p>不具合の報告・要望などは上記のXのDMにてお願いします</p>
+    </div>
 
     <script>
+
+        const LOCAL_STORAGE_KEY = 'charGeneratorDataV70';
+        
         const canvas = document.getElementById('statusCanvas');
         const ctx = canvas.getContext('2d');
         const MAX_ABILITIES = 8;
@@ -616,45 +720,34 @@
         };
         
         const inputs = {
-            charName: document.getElementById('charName'), 
-            tribeInput: document.getElementById('tribeInput'), 
-            assistSkill_nonKai: document.getElementById('assistSkill_nonKai'), shotSkill_nonKai: document.getElementById('shotSkill_nonKai'), 
+            charName: document.getElementById('charName'), tribeInput: document.getElementById('tribeInput'),
+            assistSkill_nonKai: document.getElementById('assistSkill_nonKai'), shotSkill_nonKai: document.getElementById('shotSkill_nonKai'),
             strikeShotText: document.getElementById('strikeShotText'), ssTurn1: document.getElementById('ssTurn1'), ssTurn2: document.getElementById('ssTurn2'),
             mainComboText: document.getElementById('mainComboText'), subComboText: document.getElementById('subComboText'),
-            connectSkillCondition: document.getElementById('connectSkillCondition'),
-            globalFont: document.getElementById('globalFont'),
+            connectSkillCondition: document.getElementById('connectSkillCondition'), 
+            // globalFont 削除済み
             charImageX: document.getElementById('charImageX'), charImageY: document.getElementById('charImageY'),
             charImageWidth: document.getElementById('charImageWidth'), charImageHeight: document.getElementById('charImageHeight'),
-            mainComboImageX: document.getElementById('mainComboImageX'), 
-            mainComboImageY: document.getElementById('mainComboImageY'), 
-            mainComboImageY_jyu: document.getElementById('mainComboImageY_jyu'), 
-            mainComboWidth: document.getElementById('mainComboWidth'), mainComboHeight: document.getElementById('mainComboHeight'),
-            subComboImageX: document.getElementById('subComboImageX'), 
-            subComboImageY: document.getElementById('subComboImageY'), 
-            subComboImageY_jyu: document.getElementById('subComboImageY_jyu'), 
+            mainComboImageX: document.getElementById('mainComboImageX'), mainComboImageY: document.getElementById('mainComboImageY'),
+            mainComboImageY_jyu: document.getElementById('mainComboImageY_jyu'), mainComboWidth: document.getElementById('mainComboWidth'),
+            mainComboHeight: document.getElementById('mainComboHeight'), subComboImageX: document.getElementById('subComboImageX'),
+            subComboImageY: document.getElementById('subComboImageY'), subComboImageY_jyu: document.getElementById('subComboImageY_jyu'),
             subComboWidth: document.getElementById('subComboWidth'), subComboHeight: document.getElementById('subComboHeight'),
-            
-            ssY_shinKai: document.getElementById('ssY_shinKai'),
-            mainComboY_shinKai: document.getElementById('mainComboY_shinKai'),
-            subComboY_shinKai: document.getElementById('subComboY_shinKai'),
-            
-            ssY_jyu: document.getElementById('ssY_jyu'),
-            mainComboY_jyu: document.getElementById('mainComboY_jyu'), 
-            subComboY_jyu: document.getElementById('subComboY_jyu'),   
+            ssY_shinKai: document.getElementById('ssY_shinKai'), mainComboY_shinKai: document.getElementById('mainComboY_shinKai'),
+            subComboY_shinKai: document.getElementById('subComboY_shinKai'), ssY_jyu: document.getElementById('ssY_jyu'),
+            mainComboY_jyu: document.getElementById('mainComboY_jyu'), subComboY_jyu: document.getElementById('subComboY_jyu'),
             charNameColor: document.getElementById('charNameColor'), tribeBattleColor: document.getElementById('tribeBattleColor'),
-            statsColor: document.getElementById('statsColor'), abilityColor: document.getElementById('abilityColor'),
-            assistShotSsDescColor: document.getElementById('assistShotSsDescColor'), 
-            connectSkillColor: document.getElementById('connectSkillColor'), 
-            connectConditionColor: document.getElementById('connectConditionColor'), 
-            ssTurnColor: document.getElementById('ssTurnColor'),
-            comboDescColor: document.getElementById('comboDescColor'), abilityBoxBgColor: document.getElementById('abilityBoxBgColor'),
-            abilityBoxBorderColor: document.getElementById('abilityBoxBorderColor'),
+            abilityColor: document.getElementById('abilityColor'), assistShotSsDescColor: document.getElementById('assistShotSsDescColor'),
+            connectSkillColor: document.getElementById('connectSkillColor'), connectConditionColor: document.getElementById('connectConditionColor'),
+            ssTurnColor: document.getElementById('ssTurnColor'), comboDescColor: document.getElementById('comboDescColor'),
+            abilityBoxBgColor: document.getElementById('abilityBoxBgColor'), abilityBoxBorderColor: document.getElementById('abilityBoxBorderColor'),
             ssDescColor: document.getElementById('ssDescColor'),
         };
+        
         const attributeSelectDiv = document.getElementById('attributeSelect');
         const numberSelectDiv = document.getElementById('numberSelect');
-        const shotTypeSelectDiv = document.getElementById('shotTypeSelect');
         const battleTypeSelectDiv = document.getElementById('battleTypeSelect');
+        const shotTypeSelectDiv = document.getElementById('shotTypeSelect');
         const luckSkillSelectDiv = document.getElementById('luckSkillSelect');
         const abilityListDiv = document.getElementById('ability-list');
         const addAbilityBtn = document.getElementById('addAbilityBtn');
@@ -662,18 +755,21 @@
         const subComboAttributeRadioGroup = document.getElementById('subComboAttributeSelect');
         const mainComboImageUpload = document.getElementById('mainComboImageUpload');
         const subComboImageUpload = document.getElementById('subComboImageUpload');
-        const shotSkillLabel = document.getElementById('shotSkillLabel');
-        const assistSkillLabel = document.getElementById('assistSkillLabel');
         const connectSkillControlsDiv = document.getElementById('connect-skill-controls');
         const connectSkillListDiv = document.getElementById('connect-skill-list');
         const addConnectSkillBtn = document.getElementById('addConnectSkillBtn');
-        const customPosControlsDiv = document.getElementById('custom_pos_controls');
+        const shotSkillLabel = document.getElementById('shotSkillLabel');
+        const assistSkillLabel = document.getElementById('assistSkillLabel');
+        const charImgSettingsDiv = document.getElementById('charImgSettings');
+        const resetBtn = document.getElementById('resetBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
 
         const templateImage = new Image();
-        let currentBackgroundImage = null; 
+        let currentBackgroundImage = null;
         let currentCharImage = null;
-        let mainComboUserImage = null; 
-        let subComboUserImage = null; 
+        let mainComboUserImage = null;
+        let subComboUserImage = null;
         let abilities = []; 
         let connectSkills = []; 
         
@@ -687,7 +783,7 @@
         let imagesLoaded = 0;
 
         function checkLoadComplete() {
-            if (imagesLoaded >= imagesToLoad) { drawStatusImage(); }
+            if (imagesLoaded >= imagesToLoad) { drawAndSave(); }
         }
 
         function updateIconImages() {
@@ -710,11 +806,587 @@
                     } else { imagesLoaded++; }
                 }
             }
-            if (imagesToLoad === 0 || imagesToLoad === imagesLoaded) { drawStatusImage(); }
+            if (imagesToLoad === 0 || imagesToLoad === imagesLoaded) { drawAndSave(); }
         }
 
+        function loadTemplate(filename) {
+            if (!filename) { currentBackgroundImage = null; drawAndSave(); return; }
+            templateImage.onload = function() { currentBackgroundImage = templateImage; drawAndSave(); };
+            templateImage.onerror = function() { currentBackgroundImage = null; drawAndSave(); };
+            templateImage.src = filename;
+        }
+
+        function drawStatusImage() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentBackgroundImage && currentBackgroundImage.complete && currentBackgroundImage.naturalWidth > 0) {
+                ctx.drawImage(currentBackgroundImage, 0, 0, canvas.width, canvas.height); 
+            } else {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            const selectedNumber = document.querySelector('input[name="number"]:checked').value;
+            const isKAI = selectedNumber === '改';
+            const isJYU = selectedNumber === '獣神化';
+            const isSHIN = selectedNumber === '真';
+
+            const ssDrawY = isJYU ? parseInt(inputs.ssY_jyu.value, 10) : parseInt(inputs.ssY_shinKai.value, 10);
+            const mainComboDrawY = isJYU ? parseInt(inputs.mainComboY_jyu.value, 10) : parseInt(inputs.mainComboY_shinKai.value, 10);
+            const subComboDrawY = isJYU ? parseInt(inputs.subComboY_jyu.value, 10) : parseInt(inputs.subComboY_shinKai.value, 10);
+
+            let ABILITY_BOX_REGION;
+            if (isJYU) {
+                ABILITY_BOX_REGION = { x: 530, y: 20, width: 890, height: 405 };
+            } else {
+                ABILITY_BOX_REGION = { x: 530, y: 20, width: 890, height: 305 };
+            }
+
+            const COMBO_ATTR_WIDTH_CANVAS = 128; 
+            const COMBO_ATTR_HEIGHT_CANVAS = 72; 
+            const MAIN_COMBO_ATTR_POS_CANVAS = { x: 720, y: mainComboDrawY }; 
+            const COMBO_TEXT_START_X = MAIN_COMBO_ATTR_POS_CANVAS.x + COMBO_ATTR_WIDTH_CANVAS + 10;
+            const COMBO_TEXT_MAX_WIDTH = 570; 
+
+            const charImageX = parseInt(inputs.charImageX.value, 10);
+            const charImageY = parseInt(inputs.charImageY.value, 10);
+            const charImageWidth = parseInt(inputs.charImageWidth.value, 10);
+            const charImageHeight = parseInt(inputs.charImageHeight.value, 10);
+            if (currentCharImage && currentCharImage.complete) {
+                ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
+            }
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = inputs.charNameColor.value; 
+            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 40px sans-serif`;
+            autoResizeAndCenterText(ctx, inputs.charName.value, 235, 45, 30, 400, 40, 18, 26, '');
+
+            ctx.fillStyle = inputs.tribeBattleColor.value;
+            ctx.textAlign = 'center';
+            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 30px sans-serif`;
+            ctx.fillText(`${inputs.tribeInput.value}`, 120, 779); 
+            const selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
+            ctx.fillText(selectedBattleType, 330, 779);
+
+            if (iconImages.shotType.complete && iconImages.shotType.naturalWidth > 0) { 
+                ctx.drawImage(iconImages.shotType, 0, 575, 250, 250); 
+            }
+
+            const LUCK_ICON_POS_CANVAS = { x: 448, y: 738 }; 
+            const LUCK_ICON_SIZE_CANVAS = 50; 
+            if (iconImages.luckSkill.complete && iconImages.luckSkill.naturalWidth > 0) {
+                ctx.drawImage(iconImages.luckSkill, LUCK_ICON_POS_CANVAS.x, LUCK_ICON_POS_CANVAS.y, LUCK_ICON_SIZE_CANVAS, LUCK_ICON_SIZE_CANVAS); 
+            }
+
+            {
+                const numAbilities = abilities.length;
+                if (numAbilities > 0) {
+                    const COLUMNS = 2; 
+                    const numRows = Math.ceil(numAbilities / COLUMNS);
+                    const TOTAL_ROW_HEIGHT = ABILITY_BOX_REGION.height / numRows; 
+                    const ABI_AREA_HEIGHT = Math.max(30, TOTAL_ROW_HEIGHT - 5); 
+                    const COLUMN_GAP = 8;
+                    const BOX_PADDING_Y = 5;
+                    const ROW_GAP = TOTAL_ROW_HEIGHT - ABI_AREA_HEIGHT; 
+                    const GAUGE_ICON_SIZE = 50;
+                    const GAUGE_ICON_PADDING = 5; 
+                    const ABI_BOX_WIDTH = (ABILITY_BOX_REGION.width - COLUMN_GAP) / COLUMNS;
+                    
+                    abilities.forEach((abi, index) => {
+                        const row = Math.floor(index / COLUMNS);
+                        const col = index % COLUMNS; 
+                        const ABI_LEFT_X = ABILITY_BOX_REGION.x + (col * (ABI_BOX_WIDTH + COLUMN_GAP));
+                        const currentAbiY = ABILITY_BOX_REGION.y + (row * TOTAL_ROW_HEIGHT) + (ROW_GAP / 2); 
+                        
+                        ctx.fillStyle = inputs.abilityBoxBgColor.value;
+                        ctx.fillRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
+                        
+                        ctx.strokeStyle = inputs.abilityBoxBorderColor.value;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
+
+                        let fontSize = 40; 
+                        ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} ${fontSize}px sans-serif`;
+                        
+                        let textWidth = ctx.measureText(abi.text).width;
+                        let availableWidth = ABI_BOX_WIDTH - 20; 
+                        if (abi.hasIcon) availableWidth -= (GAUGE_ICON_SIZE + GAUGE_ICON_PADDING);
+
+                        while (textWidth > availableWidth && fontSize > 16) {
+                            fontSize--;
+                            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} ${fontSize}px sans-serif`;
+                            textWidth = ctx.measureText(abi.text).width;
+                        }
+
+                        let contentStartX;
+                        if (abi.hasIcon && iconImages.abilityGauge.complete && iconImages.abilityGauge.naturalWidth > 0) {
+                            const totalContentWidth = GAUGE_ICON_SIZE + GAUGE_ICON_PADDING + textWidth;
+                            contentStartX = ABI_LEFT_X + (ABI_BOX_WIDTH - totalContentWidth) / 2;
+
+                            const iconY = currentAbiY + (ABI_AREA_HEIGHT / 2) - (GAUGE_ICON_SIZE / 2);
+                            ctx.drawImage(iconImages.abilityGauge, contentStartX, iconY, GAUGE_ICON_SIZE, GAUGE_ICON_SIZE); 
+
+                            ctx.fillStyle = inputs.abilityColor.value;
+                            ctx.textAlign = 'left'; 
+                            ctx.textBaseline = 'middle'; 
+                            ctx.fillText(abi.text, contentStartX + GAUGE_ICON_SIZE + GAUGE_ICON_PADDING, currentAbiY + (ABI_AREA_HEIGHT / 2));
+                        } else {
+                            ctx.fillStyle = inputs.abilityColor.value;
+                            ctx.textAlign = 'center'; 
+                            ctx.textBaseline = 'middle'; 
+                            ctx.fillText(abi.text, ABI_LEFT_X + (ABI_BOX_WIDTH / 2), currentAbiY + (ABI_AREA_HEIGHT / 2));
+                        }
+                    });
+                }
+            }
+            
+            if (isSHIN || isKAI) {
+                const connY = 356; 
+                ctx.textAlign = 'center';
+                
+                if (isKAI) {
+                    ctx.fillStyle = inputs.connectSkillColor.value; 
+                } else {
+                    ctx.fillStyle = inputs.assistShotSsDescColor.value;
+                }
+
+                if (isKAI) {
+                    const CONNECT_SKILL_AREA = { x: 740, y: connY, width: 680, height: 40 }; 
+                    const connectedText = connectSkills.map(skill => skill.text).join(' / ');
+                    const lineHeight = 26; 
+
+                    autoResizeAndCenterText(ctx, connectedText, CONNECT_SKILL_AREA.x + (CONNECT_SKILL_AREA.width / 2), CONNECT_SKILL_AREA.y, CONNECT_SKILL_AREA.height, CONNECT_SKILL_AREA.width - 20, 30, 16, lineHeight, '', 'center');
+                    
+                } else { 
+                    const assistText = inputs.assistSkill_nonKai.value;
+                    autoResizeAndCenterText(ctx, assistText, 1070, connY, 40, 680, 40, 16, 26, '', 'center');
+                }
+            }
+
+            if (isSHIN || isKAI) {
+                const shotY = 442;
+                ctx.textAlign = 'center';
+                
+                if (isKAI) {
+                    ctx.fillStyle = inputs.connectConditionColor.value; 
+                } else {
+                    ctx.fillStyle = inputs.assistShotSsDescColor.value;
+                }
+                
+                const textToDraw = isKAI ? inputs.connectSkillCondition.value : inputs.shotSkill_nonKai.value;
+
+                autoResizeAndCenterText(ctx, textToDraw, 1070, shotY, 50, 680, 40, 16, 26, '', 'center');
+            }
+
+            ctx.fillStyle = inputs.ssTurnColor.value;
+            ctx.textAlign = 'center';
+            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 37px sans-serif`;
+            const ssTurn = `${inputs.ssTurn1.value}＋${inputs.ssTurn2.value}`;
+            ctx.fillText(ssTurn, 604, ssDrawY + 2);
+            
+            ctx.fillStyle = inputs.ssDescColor.value;
+            autoResizeAndCenterText(ctx, inputs.strikeShotText.value, 1070, ssDrawY, -68, 680, 40, 25, 26, '', 'center');
+
+            const mainAttrX = parseInt(inputs.mainComboImageX.value, 10);
+            const subAttrX = parseInt(inputs.subComboImageX.value, 10);
+            const mainAttrY = isJYU ? parseInt(inputs.mainComboY_jyu.value, 10) : parseInt(inputs.mainComboY_shinKai.value, 10);
+            const subAttrY = isJYU ? parseInt(inputs.subComboY_jyu.value, 10) : parseInt(inputs.subComboY_shinKai.value, 10);
+            
+            if (iconImages.mainComboAttr.complete && iconImages.mainComboAttr.naturalWidth > 0) {
+                ctx.drawImage(iconImages.mainComboAttr, 720, mainAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS);
+            }
+
+            if (mainComboUserImage && mainComboUserImage.complete) {
+                const userWidth = parseInt(inputs.mainComboWidth.value, 10);
+                const userHeight = parseInt(inputs.mainComboHeight.value, 10);
+                const customY = isJYU ? parseInt(inputs.mainComboImageY_jyu.value, 10) : parseInt(inputs.mainComboImageY.value, 10);
+                ctx.drawImage(mainComboUserImage, mainAttrX, customY, userWidth, userHeight); 
+            }
+
+            ctx.fillStyle = inputs.comboDescColor.value; 
+            ctx.textAlign = 'left';
+            autoResizeAndCenterText(ctx, inputs.mainComboText.value, COMBO_TEXT_START_X, mainAttrY, COMBO_ATTR_HEIGHT_CANVAS, COMBO_TEXT_MAX_WIDTH, 40, 25, 26, '', 'left');
+
+            if (iconImages.subComboAttr.complete && iconImages.subComboAttr.naturalWidth > 0) {
+                ctx.drawImage(iconImages.subComboAttr, 720, subAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS); 
+            }
+
+            if (subComboUserImage && subComboUserImage.complete) {
+                const userWidth = parseInt(inputs.subComboWidth.value, 10);
+                const userHeight = parseInt(inputs.subComboHeight.value, 10);
+                const customY = isJYU ? parseInt(inputs.subComboImageY_jyu.value, 10) : parseInt(inputs.subComboImageY.value, 10);
+                ctx.drawImage(subComboUserImage, subAttrX, customY, userWidth, userHeight); 
+            }
+
+            ctx.fillStyle = inputs.comboDescColor.value; 
+            ctx.textAlign = 'left'; 
+            autoResizeAndCenterText(ctx, inputs.subComboText.value, COMBO_TEXT_START_X, subAttrY, COMBO_ATTR_HEIGHT_CANVAS, COMBO_TEXT_MAX_WIDTH, 40, 20, 26, '', 'left');
+
+            ctx.fillStyle = 'rgba(0, 0, 0,)';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText("※コラ画像です", canvas.width - 15, canvas.height - 10);
+        }
+
+        function collectDataToSave() {
+            const data = {
+                ...Object.fromEntries(Object.entries(inputs).map(([key, input]) => [key, input.value])),
+                attribute: document.querySelector('input[name="attribute"]:checked')?.value,
+                number: document.querySelector('input[name="number"]:checked')?.value,
+                globalWeight: document.querySelector('input[name="globalWeight"]:checked')?.value,
+                battleType: document.querySelector('input[name="battleType"]:checked')?.value,
+                shotType: document.querySelector('input[name="shotType"]:checked')?.value,
+                luckSkill: document.querySelector('input[name="luckSkill"]:checked')?.value,
+                mainComboAttribute: document.querySelector('input[name="mainComboAttribute"]:checked')?.value,
+                subComboAttribute: document.querySelector('input[name="subComboAttribute"]:checked')?.value,
+                abilities: abilities,
+                connectSkills: connectSkills,
+                charImgSettingsDisplay: charImgSettingsDiv.style.display,
+            };
+            return data;
+        }
+
+        function saveSettings() {
+            try {
+                const data = collectDataToSave();
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+            }
+        }
+
+        function loadSettings() {
+            try {
+                const dataString = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (!dataString) return false;
+
+                const data = JSON.parse(dataString);
+
+                for (const key in data) {
+                    if (inputs[key] && data[key] !== undefined && data[key] !== null) {
+                        inputs[key].value = data[key];
+                    }
+                }
+
+                const radioGroups = ['attribute', 'number', 'globalWeight', 'battleType', 'shotType', 'luckSkill', 'mainComboAttribute', 'subComboAttribute'];
+                radioGroups.forEach(group => {
+                    if (data[group]) {
+                        const radio = document.querySelector(`input[name="${group}"][value="${data[group]}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                });
+
+                if (data.abilities && Array.isArray(data.abilities)) {
+                    abilities = data.abilities;
+                }
+                if (data.connectSkills && Array.isArray(data.connectSkills)) {
+                    connectSkills = data.connectSkills;
+                }
+
+                if (data.charImgSettingsDisplay) {
+                    charImgSettingsDiv.style.display = data.charImgSettingsDisplay;
+                }
+
+                return true;
+
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function drawAndSave() {
+            drawStatusImage();
+            saveSettings();
+        }
+
+        function getSelectedTemplateFilename() {
+            const selectedAttribute = document.querySelector('input[name="attribute"]:checked');
+            const selectedNumber = document.querySelector('input[name="number"]:checked');
+            if (selectedAttribute && selectedNumber) {
+                return `${selectedNumber.value}${selectedAttribute.value}.png`;
+            }
+            return null;
+        }
+        
+        function getShotTypeImageSrc() {
+            const selectedShotType = document.querySelector('input[name="shotType"]:checked').value;
+            const hasGauge = abilities.some(abi => abi.hasIcon);
+            if (hasGauge) {
+                return `shot_${selectedShotType}_gauge.png`;
+            } else {
+                return `shot_${selectedShotType}.png`;
+            }
+        }
+
+        function getLuckSkillImageSrc() {
+            const selectedLuck = document.querySelector('input[name="luckSkill"]:checked');
+            if (selectedLuck) {
+                const luckValueMap = {
+                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",      
+                    "シールド": "luck_shield.png", "クリティカル": "luck_critical.png"  
+                };
+                return `${luckValueMap[selectedLuck.value]}`; 
+            }
+            return null;
+        }
+
+        function getComboAttributeImageSrc(isMainCombo) {
+            const comboName = isMainCombo ? 'mainComboAttribute' : 'subComboAttribute';
+            const selectedRadio = document.querySelector(`input[name="${comboName}"]:checked`);
+            if (!selectedRadio) return null;
+            const attr = selectedRadio.value; 
+            const attrBase = ATTRIBUTE_MAP[attr] || null; 
+            if (!attrBase) return null;
+            return `attr_${attrBase}_combo.png`;
+        }
+
+        function handleComboImageUpload(event, type) {
+            const file = event.target.files[0];
+            const settingsDiv = type === 'main' ? document.getElementById('mainComboImageSettings') : document.getElementById('subComboImageSettings');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const userImage = new Image();
+                    userImage.onload = function() {
+                        if (type === 'main') { mainComboUserImage = userImage; } 
+                        else { subComboUserImage = userImage; }
+                        drawAndSave(); 
+                        if (settingsDiv) settingsDiv.style.display = 'block'; 
+                    };
+                    userImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                if (type === 'main') { mainComboUserImage = null; } 
+                else { subComboUserImage = null; }
+                drawAndSave();
+                if (settingsDiv) settingsDiv.style.display = 'none'; 
+            }
+        }
+
+        function updateFormVisibility() {
+            const selectedNumber = document.querySelector('input[name="number"]:checked').value;
+            const isKAI = selectedNumber === '改';
+            const isJYU = selectedNumber === '獣神化';
+            const isSHIN = selectedNumber === '真';
+            
+            connectSkillControlsDiv.style.display = isKAI ? 'block' : 'none';
+            
+            const assistInput = inputs.assistSkill_nonKai;
+            const shotInput = inputs.shotSkill_nonKai;
+            const connectConditionInput = inputs.connectSkillCondition;
+            
+            const shinSkillColors = document.getElementById('shinSkillColors');
+            const kaiSkillColors = document.getElementById('kaiSkillColors');
+
+            const shinkaiLabels = document.querySelectorAll('.y-label-shinkai');
+            const shinkaiInputs = document.querySelectorAll('.input-shinkai');
+            const jyuLabels = document.querySelectorAll('.y-label-jyu');
+            const jyuInputs = document.querySelectorAll('.input-jyu');
+
+            if (isSHIN) {
+                assistInput.style.display = 'block'; shotInput.style.display = 'block';
+                assistSkillLabel.style.display = 'block'; assistSkillLabel.textContent = '【アシストスキル】'; shotSkillLabel.textContent = '【ショットスキル】';
+                connectConditionInput.style.display = 'none';
+                shinSkillColors.style.display = 'flex'; kaiSkillColors.style.display = 'none';
+
+            } else if (isKAI) {
+                assistInput.style.display = 'none'; shotInput.style.display = 'none';
+                assistSkillLabel.style.display = 'block'; assistSkillLabel.textContent = '【コネクトスキル】';
+                shotSkillLabel.style.display = 'block'; shotSkillLabel.textContent = '【発動条件】';
+                connectConditionInput.style.display = 'block';
+                shinSkillColors.style.display = 'none'; kaiSkillColors.style.display = 'flex';
+
+            } else {
+                assistInput.style.display = 'none'; shotInput.style.display = 'none';
+                connectConditionInput.style.display = 'none';
+                assistSkillLabel.style.display = 'none'; shotSkillLabel.style.display = 'none';
+                shinSkillColors.style.display = 'none'; kaiSkillColors.style.display = 'none';
+            }
+            
+            if (isJYU) {
+                shinkaiLabels.forEach(el => el.style.display = 'none'); shinkaiInputs.forEach(el => el.style.display = 'none');
+                jyuLabels.forEach(el => el.style.display = 'inline'); jyuInputs.forEach(el => el.style.display = 'inline-block');
+            } else {
+                shinkaiLabels.forEach(el => el.style.display = 'inline'); shinkaiInputs.forEach(el => el.style.display = 'inline-block');
+                jyuLabels.forEach(el => el.style.display = 'none'); jyuInputs.forEach(el => el.style.display = 'none');
+            }
+            
+            drawAndSave();
+        }
+
+        function createAbilityField(index) {
+            const div = document.createElement('div');
+            div.className = 'ability-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = abilities[index].hasIcon;
+            checkbox.onchange = () => {
+                abilities[index].hasIcon = checkbox.checked;
+                updateIconImages(); 
+                saveSettings();
+            };
+
+            const label = document.createElement('label');
+            label.textContent = '';
+            label.prepend(checkbox);
+            label.setAttribute('title', 'チェックを入れると、このアビリティ名の横にゲージアイコン（撃種が変化するアイコン）が描画されます。');
+
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.value = abilities[index].text;
+            textInput.placeholder = "アビリティを入力"; 
+            textInput.oninput = (e) => {
+                abilities[index].text = e.target.value;
+                drawAndSave();
+            };
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '✖︎';
+            deleteBtn.onclick = () => {
+                abilities.splice(index, 1);
+                renderAbilityFields();
+                updateIconImages(); 
+                drawAndSave();
+            };
+            
+            div.appendChild(label);
+            div.appendChild(textInput);
+            div.appendChild(deleteBtn);
+            
+            return div;
+        }
+
+        function renderAbilityFields() {
+            abilityListDiv.innerHTML = '';
+            abilities.forEach((abi, index) => {
+                abilityListDiv.appendChild(createAbilityField(index));
+            });
+
+            addAbilityBtn.style.display = abilities.length < MAX_ABILITIES ? 'block' : 'none';
+        }
+        
+        addAbilityBtn.onclick = () => {
+            if (abilities.length < MAX_ABILITIES) {
+                abilities.push({ hasIcon: false, text: '' }); 
+                renderAbilityFields();
+                drawAndSave();
+            }
+        };
+        
+        function createConnectSkillField(index) {
+            const div = document.createElement('div');
+            div.className = 'ability-item';
+            div.style.marginBottom = '5px';
+            
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.value = connectSkills[index].text;
+            textInput.placeholder = "コネクトスキルを入力";
+            textInput.oninput = (e) => {
+                connectSkills[index].text = e.target.value;
+                drawAndSave();
+            };
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '✖︎';
+            deleteBtn.onclick = () => {
+                connectSkills.splice(index, 1);
+                renderConnectSkillFields();
+                drawAndSave();
+            };
+            
+            div.appendChild(textInput);
+            div.appendChild(deleteBtn);
+            
+            return div;
+        }
+
+        function renderConnectSkillFields() {
+            connectSkillListDiv.innerHTML = '';
+            connectSkills.forEach((skill, index) => {
+                connectSkillListDiv.appendChild(createConnectSkillField(index));
+            });
+
+            addConnectSkillBtn.style.display = connectSkills.length < MAX_CONNECT_SKILLS ? 'block' : 'none';
+        }
+        
+        addConnectSkillBtn.onclick = () => {
+            if (connectSkills.length < MAX_CONNECT_SKILLS) {
+                connectSkills.push({ text: '' });
+                renderConnectSkillFields();
+                drawAndSave();
+            }
+        };
+
+        function initTribeModal() {
+            const grid = document.getElementById('tribeGrid');
+            grid.innerHTML = ''; 
+            TRIBE_LIST.forEach(tribe => {
+                const btn = document.createElement('button');
+                btn.textContent = tribe;
+                btn.onclick = () => {
+                    inputs.tribeInput.value = tribe;
+                    document.getElementById('tribeModal').style.display = 'none';
+                    drawAndSave();
+                };
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('tribeBtn').onclick = () => {
+                document.getElementById('tribeModal').style.display = 'block';
+            };
+            document.getElementById('closeTribeModal').onclick = () => {
+                document.getElementById('tribeModal').style.display = 'none';
+            };
+            window.onclick = (event) => {
+                if (event.target == document.getElementById('tribeModal')) {
+                    document.getElementById('tribeModal').style.display = 'none';
+                }
+            };
+        }
+
+        function resetAllSettings() {
+            const confirmReset = confirm(
+                "⚠️ 全ての設定を初期状態に戻します。\n自動保存されたデータもすべて削除されますがよろしいですか？\n\n【警告】この操作は元に戻せません。"
+            );
+
+            if (confirmReset) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                window.location.reload(); 
+            }
+        }
+
+        function initHelpModal() {
+            helpBtn.onclick = () => {
+                helpModal.style.display = 'block';
+            };
+            document.getElementById('closeHelpModal').onclick = () => {
+                helpModal.style.display = 'none';
+            };
+        }
+
+        document.getElementById('postToXBtn').addEventListener('click', function() {
+            const imageURL = canvas.toDataURL('image/png'); 
+            const link = document.createElement('a');
+            link.href = imageURL;
+            link.download = 'char_status_generator.png'; 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            const currentUrl = window.location.href;
+            const xIntentUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText) + '&url=' + encodeURIComponent(currentUrl);
+            
+            window.open(xIntentUrl, '_blank');
+            
+            alert("画像をダウンロードしました！");
+        });
+
+
         function getGlobalFont(size) {
-            const family = inputs.globalFont.value;
+            const family = "sans-serif"; 
             const weight = document.querySelector('input[name="globalWeight"]:checked').value;
             return `${weight} ${size}px ${family}`;
         }
@@ -734,7 +1406,7 @@
             
             ctx.font = getGlobalFont(fontSize);
             let textWidth = ctx.measureText(text).width;
-
+            
             if (textWidth <= maxWidth) {
                 finalLines = [text];
             } else {
@@ -774,6 +1446,7 @@
                 }
             }
 
+
             const totalTextHeight = finalLines.length * lineHeight;
             const drawYCenter = startY + (height / 2); 
 
@@ -788,579 +1461,65 @@
             ctx.textAlign = originalTextAlign;
             ctx.textBaseline = originalTextBaseline;
         }
-
-        function initTribeModal() {
-            const grid = document.getElementById('tribeGrid');
-            grid.innerHTML = ''; 
-            TRIBE_LIST.forEach(tribe => {
-                const btn = document.createElement('button');
-                btn.textContent = tribe;
-                btn.onclick = () => {
-                    inputs.tribeInput.value = tribe;
-                    document.getElementById('tribeModal').style.display = 'none';
-                    drawStatusImage(); 
-                };
-                grid.appendChild(btn);
-            });
-
-            document.getElementById('tribeBtn').onclick = () => {
-                document.getElementById('tribeModal').style.display = 'block';
-            };
-            document.getElementById('closeTribeModal').onclick = () => {
-                document.getElementById('tribeModal').style.display = 'none';
-            };
-            window.onclick = (event) => {
-                if (event.target == document.getElementById('tribeModal')) {
-                    document.getElementById('tribeModal').style.display = 'none';
-                }
-            };
-        }
-
-        function createAbilityField(index) {
-            const div = document.createElement('div');
-            div.className = 'ability-item';
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = abilities[index].hasIcon;
-            checkbox.onchange = () => {
-                abilities[index].hasIcon = checkbox.checked;
-                updateIconImages(); 
-            };
-
-            const label = document.createElement('label');
-            label.textContent = '';
-            label.prepend(checkbox);
-
-            const textInput = document.createElement('input');
-            textInput.type = 'text';
-            textInput.value = abilities[index].text;
-            textInput.placeholder = "アビリティを入力"; 
-            textInput.oninput = (e) => {
-                abilities[index].text = e.target.value;
-                drawStatusImage(); 
-            };
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '✖︎';
-            deleteBtn.onclick = () => {
-                abilities.splice(index, 1);
-                renderAbilityFields();
-                updateIconImages(); 
-            };
-            
-            div.appendChild(label);
-            div.appendChild(textInput);
-            div.appendChild(deleteBtn);
-            
-            return div;
-        }
-
-        function renderAbilityFields() {
-            abilityListDiv.innerHTML = '';
-            abilities.forEach((abi, index) => {
-                abilityListDiv.appendChild(createAbilityField(index));
-            });
-
-            addAbilityBtn.style.display = abilities.length < MAX_ABILITIES ? 'block' : 'none';
-        }
-
-        addAbilityBtn.onclick = () => {
-            if (abilities.length < MAX_ABILITIES) {
-                abilities.push({ hasIcon: false, text: '' }); 
-                renderAbilityFields();
-                drawStatusImage();
-            }
-        };
         
-        function createConnectSkillField(index) {
-            const div = document.createElement('div');
-            div.className = 'ability-item';
-            div.style.marginBottom = '5px';
-            
-            const textInput = document.createElement('input');
-            textInput.type = 'text';
-            textInput.value = connectSkills[index].text;
-            textInput.placeholder = "コネクトスキルを入力";
-            textInput.oninput = (e) => {
-                connectSkills[index].text = e.target.value;
-                drawStatusImage(); 
-            };
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '✖︎';
-            deleteBtn.onclick = () => {
-                connectSkills.splice(index, 1);
-                renderConnectSkillFields();
-                drawStatusImage();
-            };
-            
-            div.appendChild(textInput);
-            div.appendChild(deleteBtn);
-            
-            return div;
-        }
-
-        function renderConnectSkillFields() {
-            connectSkillListDiv.innerHTML = '';
-            connectSkills.forEach((skill, index) => {
-                connectSkillListDiv.appendChild(createConnectSkillField(index));
-            });
-
-            addConnectSkillBtn.style.display = connectSkills.length < MAX_CONNECT_SKILLS ? 'block' : 'none';
-        }
-        
-        addConnectSkillBtn.onclick = () => {
-            if (connectSkills.length < MAX_CONNECT_SKILLS) {
-                connectSkills.push({ text: '' });
-                renderConnectSkillFields();
-                drawStatusImage();
-            }
-        };
-
-
-        function getSelectedTemplateFilename() {
-            const selectedAttribute = document.querySelector('input[name="attribute"]:checked');
-            const selectedNumber = document.querySelector('input[name="number"]:checked');
-            if (selectedAttribute && selectedNumber) {
-                return `${selectedNumber.value}${selectedAttribute.value}.png`;
-            }
-            return null;
-        }
-
-        function loadTemplate(filename) {
-            if (!filename) { currentBackgroundImage = null; drawStatusImage(); return; }
-            templateImage.onload = function() { currentBackgroundImage = templateImage; drawStatusImage(); };
-            templateImage.onerror = function() { currentBackgroundImage = null; drawStatusImage(); };
-            templateImage.src = filename;
-        }
-
-        function getShotTypeImageSrc() {
-            const selectedShotType = document.querySelector('input[name="shotType"]:checked').value;
-            const hasGauge = abilities.some(abi => abi.hasIcon);
-            
-            if (hasGauge) {
-                return `shot_${selectedShotType}_gauge.png`;
-            } else {
-                return `shot_${selectedShotType}.png`;
-            }
-        }
-
-        function getLuckSkillImageSrc() {
-            const selectedLuck = document.querySelector('input[name="luckSkill"]:checked');
-            if (selectedLuck) {
-                const luckValueMap = {
-                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",      
-                    "シールド": "luck_shield.png", "クリティカル": "luck_critical.png"  
-                };
-                return `${luckValueMap[selectedLuck.value]}`; 
-            }
-            return null;
-        }
-
-        function getComboAttributeImageSrc(isMainCombo) {
-            const comboName = isMainCombo ? 'mainComboAttribute' : 'subComboAttribute';
-            const selectedRadio = document.querySelector(`input[name="${comboName}"]:checked`);
-            if (!selectedRadio) return null;
-            const attr = selectedRadio.value; 
-            const attrBase = ATTRIBUTE_MAP[attr] || null; 
-            if (!attrBase) return null;
-            return `attr_${attrBase}_combo.png`;
-        }
-        
-        function handleComboImageUpload(event, type) {
-            const file = event.target.files[0];
-            const settingsDiv = type === 'main' ? document.getElementById('mainComboImageSettings') : document.getElementById('subComboImageSettings');
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const userImage = new Image();
-                    userImage.onload = function() {
-                        if (type === 'main') { mainComboUserImage = userImage; } 
-                        else { subComboUserImage = userImage; }
-                        drawStatusImage(); 
-                        if (settingsDiv) settingsDiv.style.display = 'block'; 
-                    };
-                    userImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                if (type === 'main') { mainComboUserImage = null; } 
-                else { subComboUserImage = null; }
-                drawStatusImage();
-                if (settingsDiv) settingsDiv.style.display = 'none'; 
-            }
-        }
-        
-        function updateFormVisibility() {
-            const selectedNumber = document.querySelector('input[name="number"]:checked').value;
-            const isKAI = selectedNumber === '改';
-            const isJYU = selectedNumber === '獣神化';
-            const isSHIN = selectedNumber === '真';
-            connectSkillControlsDiv.style.display = isKAI ? 'block' : 'none';
-            const assistInput = document.getElementById('assistSkill_nonKai');
-            const shotInput = document.getElementById('shotSkill_nonKai');
-            const connectConditionInput = document.getElementById('connectSkillCondition');
-            
-            const shinSkillColors = document.getElementById('shinSkillColors');
-            const kaiSkillColors = document.getElementById('kaiSkillColors');
-
-            const shinkaiLabels = document.querySelectorAll('.y-label-shinkai');
-            const shinkaiInputs = document.querySelectorAll('.input-shinkai');
-            const jyuLabels = document.querySelectorAll('.y-label-jyu');
-            const jyuInputs = document.querySelectorAll('.input-jyu');
-
-            if (isSHIN) {
-                assistInput.style.display = 'block';
-                shotInput.style.display = 'block';
-                assistSkillLabel.style.display = 'block';
-                shotSkillLabel.style.display = 'block';
-                assistSkillLabel.textContent = '【アシストスキル】';
-                shotSkillLabel.textContent = '【ショットスキル】';
-                
-                connectConditionInput.style.display = 'none';
-                
-                shinSkillColors.style.display = 'flex';
-                kaiSkillColors.style.display = 'none';
-
-            } else if (isKAI) {
-                assistInput.style.display = 'none';
-                shotInput.style.display = 'none';
-                
-                assistSkillLabel.style.display = 'block'; 
-                assistSkillLabel.textContent = '【コネクトスキル】';
-                
-                shotSkillLabel.style.display = 'block'; 
-                shotSkillLabel.textContent = '【発動条件】';
-                
-                connectConditionInput.style.display = 'block';
-
-                shinSkillColors.style.display = 'none';
-                kaiSkillColors.style.display = 'flex';
-
-            } else {
-                assistInput.style.display = 'none';
-                shotInput.style.display = 'none';
-                connectConditionInput.style.display = 'none';
-                assistSkillLabel.style.display = 'none';
-                shotSkillLabel.style.display = 'none';
-                
-                shinSkillColors.style.display = 'none';
-                kaiSkillColors.style.display = 'none';
-            }
-            
-            if (isJYU) {
-                shinkaiLabels.forEach(el => el.style.display = 'none');
-                shinkaiInputs.forEach(el => el.style.display = 'none');
-                jyuLabels.forEach(el => el.style.display = 'inline');
-                jyuInputs.forEach(el => el.style.display = 'inline-block');
-            } else {
-                shinkaiLabels.forEach(el => el.style.display = 'inline');
-                shinkaiInputs.forEach(el => el.style.display = 'inline-block');
-                jyuLabels.forEach(el => el.style.display = 'none');
-                jyuInputs.forEach(el => el.style.display = 'none');
-            }
-            
-            drawStatusImage(); 
-        }
-
-        function drawStatusImage() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (currentBackgroundImage && currentBackgroundImage.complete && currentBackgroundImage.naturalWidth > 0) {
-                ctx.drawImage(currentBackgroundImage, 0, 0, canvas.width, canvas.height); 
-            } else {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
-            const charImageX = parseInt(inputs.charImageX.value, 10); 
-            const charImageY = parseInt(inputs.charImageY.value, 10); 
-            const charImageWidth = parseInt(inputs.charImageWidth.value, 10); 
-            const charImageHeight = parseInt(inputs.charImageHeight.value, 10); 
-
-            if (currentCharImage && currentCharImage.complete) {
-                   ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
-            }
-
-            const selectedNumber = document.querySelector('input[name="number"]:checked').value;
-            const isKAI = selectedNumber === '改';
-            const isJYU = selectedNumber === '獣神化';
-            const isSHIN = selectedNumber === '真';
-
-            const ssDrawY = isJYU ? parseInt(inputs.ssY_jyu.value, 10) : parseInt(inputs.ssY_shinKai.value, 10);
-            const mainComboDrawY = isJYU ? parseInt(inputs.mainComboY_jyu.value, 10) : parseInt(inputs.mainComboY_shinKai.value, 10);
-            const subComboDrawY = isJYU ? parseInt(inputs.subComboY_jyu.value, 10) : parseInt(inputs.subComboY_shinKai.value, 10);
-
-            let ABILITY_BOX_REGION;
-            if (isJYU) {
-                ABILITY_BOX_REGION = { x: 530, y: 20, width: 890, height: 405 };
-            } else {
-                ABILITY_BOX_REGION = { x: 530, y: 20, width: 890, height: 305 };
-            }
-
-            const COMBO_ATTR_WIDTH_CANVAS = 128; 
-            const COMBO_ATTR_HEIGHT_CANVAS = 72; 
-            const MAIN_COMBO_ATTR_POS_CANVAS = { x: 720, y: mainComboDrawY }; 
-            const SUB_COMBO_ATTR_POS_CANVAS = { x: 720, y: subComboDrawY }; 
-
-            const COMBO_TEXT_START_X = MAIN_COMBO_ATTR_POS_CANVAS.x + COMBO_ATTR_WIDTH_CANVAS + 10;
-            const COMBO_TEXT_MAX_WIDTH = 570; 
-
-            ctx.textAlign = 'center';
-            ctx.fillStyle = inputs.charNameColor.value; 
-            autoResizeAndCenterText(
-                ctx, inputs.charName.value, 
-                235, 45, 30, 400, 40, 18, 26, ''
-            );
-
-            ctx.fillStyle = inputs.tribeBattleColor.value;
-            ctx.textAlign = 'center';
-            ctx.font = getGlobalFont(30); 
-            ctx.fillText(`${inputs.tribeInput.value}`, 120, 765); 
-            
-            const selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
-            ctx.fillText(selectedBattleType, 330, 765);
-
-            if (iconImages.shotType.complete && iconImages.shotType.naturalWidth > 0) { 
-                ctx.drawImage(iconImages.shotType, 0, 575, 250, 250); 
-            }
-
-            const LUCK_ICON_POS_CANVAS = { x: 448, y: 738 }; 
-            const LUCK_ICON_SIZE_CANVAS = 50; 
-            if (iconImages.luckSkill.complete && iconImages.luckSkill.naturalWidth > 0) {
-                ctx.drawImage(iconImages.luckSkill, LUCK_ICON_POS_CANVAS.x, LUCK_ICON_POS_CANVAS.y, LUCK_ICON_SIZE_CANVAS, LUCK_ICON_SIZE_CANVAS); 
-            }
-
-            {
-                const numAbilities = abilities.length;
-                if (numAbilities > 0) {
-                    const COLUMNS = 2; 
-                    const numRows = Math.ceil(numAbilities / COLUMNS);
-                    const COLUMN_GAP = 8; 
-                    const BOX_PADDING_Y = 5; 
-                    const ABI_BOX_WIDTH = (ABILITY_BOX_REGION.width - COLUMN_GAP) / COLUMNS; 
-                    const TOTAL_ROW_HEIGHT = ABILITY_BOX_REGION.height / numRows; 
-                    const ABI_AREA_HEIGHT = Math.max(30, TOTAL_ROW_HEIGHT - BOX_PADDING_Y); 
-                    const ROW_GAP = TOTAL_ROW_HEIGHT - ABI_AREA_HEIGHT; 
-                    const GAUGE_ICON_SIZE = 50;
-                    const GAUGE_ICON_PADDING = 5; 
-                    
-                    abilities.forEach((abi, index) => {
-                        const row = Math.floor(index / COLUMNS);
-                        const col = index % COLUMNS; 
-                        const ABI_LEFT_X = ABILITY_BOX_REGION.x + (col * (ABI_BOX_WIDTH + COLUMN_GAP));
-                        const currentAbiY = ABILITY_BOX_REGION.y + (row * TOTAL_ROW_HEIGHT) + (ROW_GAP / 2); 
-                        
-                        ctx.fillStyle = inputs.abilityBoxBgColor.value;
-                        ctx.fillRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
-                        
-                        ctx.strokeStyle = inputs.abilityBoxBorderColor.value;
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
-
-                        let fontSize = 40; 
-                        ctx.font = getGlobalFont(fontSize);
-                        
-                        let textWidth = ctx.measureText(abi.text).width;
-                        let availableWidth = ABI_BOX_WIDTH - 20; 
-                        if (abi.hasIcon) availableWidth -= (GAUGE_ICON_SIZE + GAUGE_ICON_PADDING);
-
-                        while (textWidth > availableWidth && fontSize > 16) {
-                            fontSize--;
-                            ctx.font = getGlobalFont(fontSize);
-                            textWidth = ctx.measureText(abi.text).width;
-                        }
-
-                        let contentStartX;
-                        if (abi.hasIcon && iconImages.abilityGauge.complete && iconImages.abilityGauge.naturalWidth > 0) {
-                            const totalContentWidth = GAUGE_ICON_SIZE + GAUGE_ICON_PADDING + textWidth;
-                            contentStartX = ABI_LEFT_X + (ABI_BOX_WIDTH - totalContentWidth) / 2;
-
-                            const iconY = currentAbiY + (ABI_AREA_HEIGHT / 2) - (GAUGE_ICON_SIZE / 2);
-                            ctx.drawImage(iconImages.abilityGauge, contentStartX, iconY, GAUGE_ICON_SIZE, GAUGE_ICON_SIZE); 
-
-                            ctx.fillStyle = inputs.abilityColor.value;
-                            ctx.textAlign = 'left'; 
-                            ctx.textBaseline = 'middle'; 
-                            ctx.fillText(abi.text, contentStartX + GAUGE_ICON_SIZE + GAUGE_ICON_PADDING, currentAbiY + (ABI_AREA_HEIGHT / 2));
-                        } else {
-                            ctx.fillStyle = inputs.abilityColor.value;
-                            ctx.textAlign = 'center'; 
-                            ctx.textBaseline = 'middle'; 
-                            ctx.fillText(abi.text, ABI_LEFT_X + (ABI_BOX_WIDTH / 2), currentAbiY + (ABI_AREA_HEIGHT / 2));
-                        }
-                    });
-                }
-            }
-
-            if (isSHIN || isKAI) {
-                const connY = 356; 
-                ctx.textAlign = 'center';
-                
-                if (isKAI) {
-                    ctx.fillStyle = inputs.connectSkillColor.value; 
-                } else {
-                    ctx.fillStyle = inputs.assistShotSsDescColor.value;
-                }
-
-                if (isKAI) {
-                    const CONNECT_SKILL_AREA = { x: 740, y: connY, width: 680, height: 40 }; 
-                    const connectedText = connectSkills.map(skill => skill.text).join(' / ');
-                    const lineHeight = 26; 
-
-                    autoResizeAndCenterText(
-                        ctx, connectedText, 
-                        CONNECT_SKILL_AREA.x + (CONNECT_SKILL_AREA.width / 2), 
-                        CONNECT_SKILL_AREA.y, 
-                        CONNECT_SKILL_AREA.height, 
-                        CONNECT_SKILL_AREA.width - 20, 
-                        30, 16, lineHeight, '', 'center' 
-                    );
-                    
-                } else { 
-                    const assistText = inputs.assistSkill_nonKai.value;
-                    autoResizeAndCenterText(
-                        ctx, assistText, 
-                        1070, connY, 40, 680, 40, 16, 26, '', 'center'
-                    );
-                }
-            }
-
-            if (isSHIN || isKAI) {
-                const shotY = 442;
-                ctx.textAlign = 'center';
-                
-                if (isKAI) {
-                    ctx.fillStyle = inputs.connectConditionColor.value; 
-                } else {
-                    ctx.fillStyle = inputs.assistShotSsDescColor.value;
-                }
-                
-                const textToDraw = isKAI ? inputs.connectSkillCondition.value : inputs.shotSkill_nonKai.value;
-
-                autoResizeAndCenterText(
-                    ctx, textToDraw, 
-                    1070, shotY, 50, 680, 40, 16, 26, '', 'center'
-                );
-            }
-
-            ctx.fillStyle = inputs.ssTurnColor.value;
-            ctx.textAlign = 'center';
-            ctx.font = getGlobalFont(40); 
-            const ssTurn = `${inputs.ssTurn1.value}＋${inputs.ssTurn2.value}`;
-            ctx.fillText(ssTurn, 604, ssDrawY + 2);
-            
-            ctx.fillStyle = inputs.ssDescColor.value;
-            autoResizeAndCenterText(
-                ctx, inputs.strikeShotText.value, 
-                1070, ssDrawY, -68, 680, 40, 25, 26, '', 'center'
-                );
-
-            const mainAttrX = MAIN_COMBO_ATTR_POS_CANVAS.x; 
-            
-            let userMainY = isJYU ? parseInt(inputs.mainComboImageY_jyu.value, 10) : parseInt(inputs.mainComboImageY.value, 10);
-            
-            const mainAttrY = MAIN_COMBO_ATTR_POS_CANVAS.y;
-            if (iconImages.mainComboAttr.complete && iconImages.mainComboAttr.naturalWidth > 0) {
-                 ctx.drawImage(iconImages.mainComboAttr, mainAttrX, mainAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS);
-            }
-
-            if (mainComboUserImage && mainComboUserImage.complete) {
-                const userX = parseInt(inputs.mainComboImageX.value, 10);
-                const userWidth = parseInt(inputs.mainComboWidth.value, 10);
-                const userHeight = parseInt(inputs.mainComboHeight.value, 10);
-                
-                ctx.drawImage(mainComboUserImage, userX, userMainY, userWidth, userHeight); 
-            }
-
-            ctx.fillStyle = inputs.comboDescColor.value; 
-            ctx.textAlign = 'left';
-            autoResizeAndCenterText(
-                ctx, inputs.mainComboText.value, 
-                COMBO_TEXT_START_X, 
-                mainAttrY, 
-                COMBO_ATTR_HEIGHT_CANVAS, 
-                COMBO_TEXT_MAX_WIDTH, 
-                40, 25, 26, '', 'left'
-            );
-
-            const subAttrX = SUB_COMBO_ATTR_POS_CANVAS.x; 
-            const subAttrY = SUB_COMBO_ATTR_POS_CANVAS.y;
-            
-            let userSubY = isJYU ? parseInt(inputs.subComboImageY_jyu.value, 10) : parseInt(inputs.subComboImageY.value, 10);
-
-            if (iconImages.subComboAttr.complete && iconImages.subComboAttr.naturalWidth > 0) {
-                ctx.drawImage(iconImages.subComboAttr, subAttrX, subAttrY, COMBO_ATTR_WIDTH_CANVAS, COMBO_ATTR_HEIGHT_CANVAS); 
-            }
-
-            if (subComboUserImage && subComboUserImage.complete) {
-                const userX = parseInt(inputs.subComboImageX.value, 10);
-                const userWidth = parseInt(inputs.subComboWidth.value, 10);
-                const userHeight = parseInt(inputs.subComboHeight.value, 10);
-
-                ctx.drawImage(subComboUserImage, userX, userSubY, userWidth, userHeight); 
-            }
-
-            ctx.fillStyle = inputs.comboDescColor.value; 
-            ctx.textAlign = 'left'; 
-            autoResizeAndCenterText(
-                ctx, inputs.subComboText.value, 
-                COMBO_TEXT_START_X, 
-                subAttrY, 
-                COMBO_ATTR_HEIGHT_CANVAS, 
-                COMBO_TEXT_MAX_WIDTH, 
-                40, 20, 26, '', 'left'
-            );
-        }
-
         function loadInitialImages() {
-            abilities.push({ hasIcon: false, text: '' });
-            abilities.push({ hasIcon: false, text: '' });
-            abilities.push({ hasIcon: false, text: '' }); 
-            abilities.push({ hasIcon: false, text: '' });
-            abilities.push({ hasIcon: false, text: '' });
-            
-            connectSkills.push({ text: '' });
-            connectSkills.push({ text: '' });
-            connectSkills.push({ text: '' }); 
-            connectSkills.push({ text: '' }); 
-            renderConnectSkillFields();
+            const loaded = loadSettings();
 
+            if (!loaded) {
+                abilities = [
+                    { hasIcon: false, text: '' },
+                    { hasIcon: false, text: '' },
+                    { hasIcon: false, text: '' },
+                    { hasIcon: false, text: '' }
+                ];
+
+                connectSkills = [
+                    { text: '' },
+                    { text: '' }
+                ];
+
+                document.getElementById('weight_bold').checked = true;
+                document.getElementById('attr_fire').checked = true;
+                document.getElementById('num_shin').checked = true;
+                document.getElementById('type_balance').checked = true;
+                document.getElementById('shot_reflect').checked = true;
+                document.getElementById('luck_guide').checked = true;
+                document.getElementById('main_attr_fire').checked = true;
+                document.getElementById('sub_attr_dark').checked = true;
+            }
+            
+            renderConnectSkillFields();
             renderAbilityFields();
-            
+
             updateIconImages(); 
-            loadTemplate(getSelectedTemplateFilename());
-            
+            loadTemplate(getSelectedTemplateFilename()); 
             updateFormVisibility(); 
         }
 
         Object.values(inputs).forEach(input => {
-            if (input) input.addEventListener('input', drawStatusImage);
+            if (input) input.addEventListener('input', drawAndSave);
         });
-        document.getElementById('battleTypeSelect').addEventListener('change', drawStatusImage); 
         
+        document.getElementById('battleTypeSelect').addEventListener('change', drawAndSave);
         document.querySelectorAll('input[name="globalWeight"]').forEach(radio => {
-            radio.addEventListener('change', drawStatusImage);
+            radio.addEventListener('change', drawAndSave);
         });
-        document.getElementById('globalFont').addEventListener('change', drawStatusImage);
+        shotTypeSelectDiv.addEventListener('change', updateIconImages); 
+        
+        luckSkillSelectDiv.addEventListener('change', updateIconImages); 
+        
+        mainComboAttributeRadioGroup.addEventListener('change', updateIconImages);
+        subComboAttributeRadioGroup.addEventListener('change', updateIconImages);
 
         attributeSelectDiv.addEventListener('change', () => { loadTemplate(getSelectedTemplateFilename()); });
         numberSelectDiv.addEventListener('change', () => { 
             loadTemplate(getSelectedTemplateFilename());
             updateFormVisibility(); 
         });
-        
-        shotTypeSelectDiv.addEventListener('change', updateIconImages);
-        luckSkillSelectDiv.addEventListener('change', updateIconImages);
-        
-        mainComboAttributeRadioGroup.addEventListener('change', updateIconImages);
-        subComboAttributeRadioGroup.addEventListener('change', updateIconImages);
 
         mainComboImageUpload.addEventListener('change', (e) => handleComboImageUpload(e, 'main'));
         subComboImageUpload.addEventListener('change', (e) => handleComboImageUpload(e, 'sub'));
-
+        
         document.getElementById('charImageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -1369,16 +1528,16 @@
                     const userImage = new Image();
                     userImage.onload = function() {
                         currentCharImage = userImage;
-                        drawStatusImage();
-                        document.getElementById('charImgSettings').style.display = 'block';
+                        drawAndSave();
+                        charImgSettingsDiv.style.display = 'block';
                     };
                     userImage.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             } else {
                 currentCharImage = null;
-                drawStatusImage();
-                document.getElementById('charImgSettings').style.display = 'none';
+                drawAndSave();
+                charImgSettingsDiv.style.display = 'none';
             }
         });
 
@@ -1391,9 +1550,13 @@
             link.click();
             document.body.removeChild(link);
         });
+        
+        resetBtn.addEventListener('click', resetAllSettings);
 
         initTribeModal();
+        initHelpModal(); 
         loadInitialImages();
+
     </script>
 </body>
 </html>
