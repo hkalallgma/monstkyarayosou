@@ -441,7 +441,7 @@
             <br>
 
             <label title="キャラクターの種族名を入力します。ボタンから選択肢を選ぶことも可能です。">【種族】</label>
-            <input type="text" id="tribeInput" value="亜人" readonly>
+            <input type="text" id="tribeInput" value="亜人">
             <button id="tribeBtn">種族を選択</button>
 
             <label title="キャラクターの戦型を選択します。">【戦型】</label>
@@ -575,9 +575,9 @@
             <div id="mainComboAttributeSelect" class="select-group combo-attr-select-group">
                 <input type="radio" id="main_attr_fire" name="mainComboAttribute" value="火" checked><label for="main_attr_fire"><img src="attr_fire_combo.png" alt="火"></label>
                 <input type="radio" id="main_attr_water" name="mainComboAttribute" value="水"><label for="main_attr_water"><img src="attr_water_combo.png" alt="水"></label>
-                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="attr_wood"><img src="attr_wood.png" alt="木"></label>
-                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="attr_light"><img src="attr_light.png" alt="光"></label>
-                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="attr_dark"><img src="attr_dark.png" alt="闇"></label>
+                <input type="radio" id="main_attr_wood" name="mainComboAttribute" value="木"><label for="main_attr_wood"><img src="attr_wood_combo.png" alt="木"></label>
+                <input type="radio" id="main_attr_light" name="mainComboAttribute" value="光"><label for="main_attr_light"><img src="attr_light_combo.png" alt="光"></label>
+                <input type="radio" id="main_attr_dark" name="mainComboAttribute" value="闇"><label for="main_attr_dark"><img src="attr_dark_combo.png" alt="闇"></label>
                 <input type="radio" id="main_attr_none" name="mainComboAttribute" value="無"><label for="main_attr_none"><img src="attr_none_combo.png" alt="無"></label>
                 <input type="radio" id="main_attr_all" name="mainComboAttribute" value="全"><label for="main_attr_all"><img src="attr_all_combo.png" alt="全"></label>
             </div>
@@ -725,7 +725,6 @@
             strikeShotText: document.getElementById('strikeShotText'), ssTurn1: document.getElementById('ssTurn1'), ssTurn2: document.getElementById('ssTurn2'),
             mainComboText: document.getElementById('mainComboText'), subComboText: document.getElementById('subComboText'),
             connectSkillCondition: document.getElementById('connectSkillCondition'), 
-            // globalFont 削除済み
             charImageX: document.getElementById('charImageX'), charImageY: document.getElementById('charImageY'),
             charImageWidth: document.getElementById('charImageWidth'), charImageHeight: document.getElementById('charImageHeight'),
             mainComboImageX: document.getElementById('mainComboImageX'), mainComboImageY: document.getElementById('mainComboImageY'),
@@ -1376,15 +1375,18 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
             const currentUrl = window.location.href;
+            const tweetText = 'キャラクター設定ジェネレーターで画像を作成しました！ #オリジナルキャラ #モンスト風 #ジェネレーター';
             const xIntentUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText) + '&url=' + encodeURIComponent(currentUrl);
             
             window.open(xIntentUrl, '_blank');
             
-            alert("画像をダウンロードしました！");
+            alert("画像を自動でダウンロードしました。\n開いた投稿画面で、ダウンロードした画像を添付して投稿してください。");
         });
 
 
+        // 【修正】getGlobalFont フォント固定
         function getGlobalFont(size) {
             const family = "sans-serif"; 
             const weight = document.querySelector('input[name="globalWeight"]:checked').value;
@@ -1461,6 +1463,29 @@
             ctx.textAlign = originalTextAlign;
             ctx.textBaseline = originalTextBaseline;
         }
+
+        // [新規追加] SSターン数の入力欄に、フォーカス時に初期値を消す挙動を追加
+        function setupNumberInputPlaceholder(inputId) {
+            const input = document.getElementById(inputId);
+            // 現在の値を「デフォルト値」として記憶する
+            // (ページロード時に値が入っているため)
+            input.setAttribute('data-default', input.value); 
+            
+            input.addEventListener('focus', () => {
+                // フォーカスされた時、もし値がデフォルト値（初期値）と同じなら空にする
+                if (input.value === input.getAttribute('data-default')) {
+                    input.value = '';
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                // フォーカスが外れた時、もし空ならデフォルト値に戻す（計算エラー防止）
+                if (input.value === '' || isNaN(parseInt(input.value))) {
+                    input.value = input.getAttribute('data-default');
+                }
+                drawAndSave(); // 変更を保存・再描画
+            });
+        }
         
         function loadInitialImages() {
             const loaded = loadSettings();
@@ -1491,23 +1516,27 @@
             renderConnectSkillFields();
             renderAbilityFields();
 
+            // [新規追加] SSターン数の挙動設定を適用
+            setupNumberInputPlaceholder('ssTurn1'); 
+            setupNumberInputPlaceholder('ssTurn2'); 
+
             updateIconImages(); 
             loadTemplate(getSelectedTemplateFilename()); 
             updateFormVisibility(); 
         }
 
         Object.values(inputs).forEach(input => {
-            if (input) input.addEventListener('input', drawAndSave);
+            // numberタイプ以外は通常のinputイベントで保存
+            if (input && input.type !== 'number') input.addEventListener('input', drawAndSave);
         });
         
         document.getElementById('battleTypeSelect').addEventListener('change', drawAndSave);
         document.querySelectorAll('input[name="globalWeight"]').forEach(radio => {
             radio.addEventListener('change', drawAndSave);
         });
+        
         shotTypeSelectDiv.addEventListener('change', updateIconImages); 
-        
         luckSkillSelectDiv.addEventListener('change', updateIconImages); 
-        
         mainComboAttributeRadioGroup.addEventListener('change', updateIconImages);
         subComboAttributeRadioGroup.addEventListener('change', updateIconImages);
 
