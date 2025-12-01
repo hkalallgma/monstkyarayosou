@@ -68,8 +68,8 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        #downloadBtn, #postToXBtn { 
-            margin: 5px 5px 0;
+        #downloadBtn { 
+            margin: 5px auto 0;
             padding: 6px 15px;
             font-size: 0.85rem;
             color: white;
@@ -77,9 +77,8 @@
             border-radius: 4px;
             cursor: pointer;
             display: inline-block;
+            background-color: #e74c3c; 
         }
-        #downloadBtn { background-color: #e74c3c; }
-        #postToXBtn { background-color: #000000; }
 
         #input-controls {
             flex-grow: 1;
@@ -383,7 +382,6 @@
             <h2>プレビュー</h2>
             <canvas id="statusCanvas" width="1440" height="810"></canvas>
             <button id="downloadBtn">⬇画像をダウンロード (PNG)</button>
-            <button id="postToXBtn">Xに投稿</button>
         </div>
 
         <div id="input-controls">
@@ -694,7 +692,6 @@
             <h4>【画像ダウンロードとX投稿】</h4>
             <ul>
                 <li>画像をダウンロード: プレビュー画面の画像をPNG形式で保存します。</li>
-                <li>Xに投稿: 画像を自動でダウンロードし、Xの投稿画面を開きます。ダウンロードした画像をご自身で添付して投稿してください。</li>
             </ul>
             <h4>【カラー設定（文字色・枠色）について】</h4>
             <p>色のついたボックスをタップすることで変更できます</p>
@@ -1367,26 +1364,6 @@
             };
         }
 
-        document.getElementById('postToXBtn').addEventListener('click', function() {
-            const imageURL = canvas.toDataURL('image/png'); 
-            const link = document.createElement('a');
-            link.href = imageURL;
-            link.download = 'char_status_generator.png'; 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            const currentUrl = window.location.href;
-            const tweetText = 'キャラクター設定ジェネレーターで画像を作成しました！ #オリジナルキャラ #モンスト風 #ジェネレーター';
-            const xIntentUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText) + '&url=' + encodeURIComponent(currentUrl);
-            
-            window.open(xIntentUrl, '_blank');
-            
-            alert("画像を自動でダウンロードしました。\n開いた投稿画面で、ダウンロードした画像を添付して投稿してください。");
-        });
-
-
-        // 【修正】getGlobalFont フォント固定
         function getGlobalFont(size) {
             const family = "sans-serif"; 
             const weight = document.querySelector('input[name="globalWeight"]:checked').value;
