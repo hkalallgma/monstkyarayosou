@@ -515,7 +515,7 @@
                 <input type="color" id="abilityColor" value="#000000">
             </div>
             
-            <label id="assistSkillLabel" title="真獣神化形態の場合、アシストスキルを入力します。">【アシストスキル】</label>
+            <label for="shotSkill" id="shotSkillLabel" title="真獣神化形態の場合、ショットスキルを入力します。">【ショットスキル】</label>
             <div id="assistSkillArea">
                 <div id="connect-skill-controls" style="display: none; border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-top: 10px;">
                     <label>【コネクトスキル入力欄】</label>
@@ -525,10 +525,9 @@
                 </div>
             </div>
             
-            <input type="text" id="assistSkill_nonKai" placeholder="アシストスキルを入力">
-            
-            <label for="shotSkill" id="shotSkillLabel" title="真獣神化形態の場合、ショットスキルを入力します。">【ショットスキル】</label>
-            <input type="text" id="shotSkill_nonKai" placeholder="ショットスキルを入力">
+            <input type="text" id="assistSkill_nonKai" placeholder="ショットスキルを入力">
+            <label id="assistSkillLabel" title="真獣神化形態の場合、アシストスキルを入力します。">【アシストスキル】</label>
+            <input type="text" id="shotSkill_nonKai" placeholder="アシストスキルを入力">
             
             <input type="text" id="connectSkillCondition" placeholder="発動条件を入力" style="display: none;" title="獣神化・改形態の場合、コネクトスキルの発動条件を入力します。">
             
@@ -1183,7 +1182,7 @@
 
             if (isSHIN) {
                 assistInput.style.display = 'block'; shotInput.style.display = 'block';
-                assistSkillLabel.style.display = 'block'; assistSkillLabel.textContent = '【アシストスキル】'; shotSkillLabel.textContent = '【ショットスキル】';
+                assistSkillLabel.style.display = 'block'; shotSkillLabel.textContent = '【ショットスキル】'; assistSkillLabel.textContent = '【アシストスキル】';
                 connectConditionInput.style.display = 'none';
                 shinSkillColors.style.display = 'flex'; kaiSkillColors.style.display = 'none';
 
