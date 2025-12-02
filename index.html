@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮モンスト　キャラクター予想ジェネレーター</title>
+    <title>モンスト　キャラクター予想ジェネレーター</title>
     <style>
         html, body {
             height: 100%;
@@ -349,6 +349,10 @@
         #helpModal li { margin-bottom: 8px; font-size: 0.95rem; }
         #helpModal h4 { margin-top: 15px; font-size: 1.05rem; color: #2c3e50; }
 
+        /* 保存・読込用スタイル */
+        #ioTextarea:focus { outline: 2px solid #3498db; }
+        #openSaveLoadBtn:hover { background-color: #2980b9; }
+
         @media (min-width: 1024px) {
             body { overflow: auto; display: block; }
             #generator-area {
@@ -373,7 +377,7 @@
     <h1>
         <span>キャラクター予想ジェネレーター</span>
         <span class="flex-spacer"></span>
-        <button id="helpBtn" title="ジェネレーターの利用方法と各項目の説明を表示します。">説明</button>
+        <button id="helpBtn" title="ジェネレーターの利用方法と各項目の説明を表示します。">取説</button>
     </h1>
     
     <div id="generator-area">
@@ -393,6 +397,8 @@
                     <input type="radio" id="weight_normal" name="globalWeight" value="normal"><label for="weight_normal">通常</label>
                     <input type="radio" id="weight_bold" name="globalWeight" value="bold" checked><label for="weight_bold">太字</label>
                 </div>
+                
+                <button id="openSaveLoadBtn" class="reset-btn" style="background-color: #3498db; margin-top: 15px;">復元コードの保存・読込</button>
                 <button id="resetBtn" class="reset-btn">全設定をリセット</button>
             </div>
 
@@ -634,9 +640,7 @@
                 <input type="color" id="comboDescColor" value="#000000">
             </div>
         </div>
-    </div>
-    
-    <div id="tribeModal" class="modal">
+    </div> <div id="tribeModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeTribeModal">&times;</span>
             <h3>種族を選択</h3>
@@ -652,6 +656,13 @@
             
             <h4>【自動保存と注意点】</h4>
             <p>すべてのご入力内容は、ご利用のブラウザに自動で保存されます。次回アクセス時も続きから編集できますが、ブラウザの設定やキャッシュクリアなどによりデータが失われる可能性があります。ご注意ください。</p>
+            <h4>【データの保存・読込】</h4>
+            <p>「復元コードの保存・読込」ボタンを押すと、現在の設定を「復元コード」として取り出せます。</p>
+            <ul>
+                <li><b>復元コード発行:</b> 「キャラ名：コード」の形式で自動的にコピーされます。メモアプリ等に保存しておくことで、データが消えてしまったり、別のキャラの予想画像を作成した後でも復元することができます</li>
+                <li><b>復元:</b> メモした「キャラ名：コード」の行をそのまま貼り付けて「復元」ボタンを押すと設定が読み込まれます。</li>
+            </ul>
+            <p>※画像データ自体は保存されません。</p>
 
             <h4>【全体設定】</h4>
             <ul>
@@ -688,17 +699,31 @@
                 <li>位置・サイズ設定: 画像挿入後、　X/Y座標、幅/高さ　の設定画面が現れます。位置はデフォルトで調整済みですが、微調整が可能です。</li>
             </ul>
 
-            <h4>【画像ダウンロードとX投稿】</h4>
+            <h4>【画像ダウンロード】</h4>
             <ul>
                 <li>画像をダウンロード: プレビュー画面の画像をPNG形式で保存します。</li>
             </ul>
             <h4>【カラー設定（文字色・枠色）について】</h4>
             <p>色のついたボックスをタップすることで変更できます</p>
             <p>全てのカラー設定は、設定項目に連動した特定の文字や枠のみに反映されます。</p>
+        </div>
+    </div>
+
+    <div id="saveLoadModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" id="closeSaveLoadModal">&times;</span>
+            <h3>設定データの保存・復元</h3>
             
-            <h4>【作成者Xアカウント】</h4>
-            <a href="https://x.com/mijeentlnq39093?s=21&t=sNgfAjLPVPtH81K8y4iZfw" target="_blank" rel="noopener noreferrer">Xを開く</a>
-            <p>不具合の報告・要望などは上記のXのDMにてお願いします</p>
+            <div style="margin-bottom:10px;">
+                 <button id="generateCodeBtn" class="tribe-grid button" style="width:100%; background:#9b59b6; color:white; border:none; padding:12px; border-radius:4px; cursor:pointer; font-weight:bold;">🔑 復元コードを発行</button>
+            </div>
+            
+            <textarea id="ioTextarea" rows="6" placeholder="ここに復元コードを貼り付けてください..." style="width:100%; box-sizing:border-box; padding:10px; border-radius:4px; border:1px solid #ccc; font-family:monospace; font-size:0.85rem; background-color: #fff;"></textarea>
+            
+            <p style="font-size:0.8rem; color:#666; margin-top:5px; margin-bottom:15px;">※発行ボタンを押すとコードが自動コピーされます。<br>※復元時は「キャラ名： コード」をそのまま貼り付けてOKです。</p>
+
+            <button id="loadJsonBtn" class="tribe-grid button" style="width:100%; background:#e67e22; color:white; border:none; padding:12px; border-radius:4px; cursor:pointer; font-weight:bold;">🔄 復元</button>
+        </div>
     </div>
 
     <script>
@@ -1025,7 +1050,11 @@
         }
 
         function collectDataToSave() {
+            // ▼ 保存データの先頭にわかりやすい名前タグを追加
+            const charNameTag = inputs.charName.value ? `【${inputs.charName.value}】` : '【名称未設定】';
+            
             const data = {
+                _memoInfo: `${charNameTag}のバックアップデータ (このテキストをコピーして保存)`,
                 ...Object.fromEntries(Object.entries(inputs).map(([key, input]) => [key, input.value])),
                 attribute: document.querySelector('input[name="attribute"]:checked')?.value,
                 number: document.querySelector('input[name="number"]:checked')?.value,
@@ -1050,40 +1079,68 @@
             }
         }
 
+        function applyData(data) {
+            if (!data) return false;
+
+            for (const key in data) {
+                if (inputs[key] && data[key] !== undefined && data[key] !== null) {
+                    inputs[key].value = data[key];
+                }
+            }
+
+            const radioGroups = ['attribute', 'number', 'globalWeight', 'battleType', 'shotType', 'luckSkill', 'mainComboAttribute', 'subComboAttribute'];
+            radioGroups.forEach(group => {
+                if (data[group]) {
+                    const radio = document.querySelector(`input[name="${group}"][value="${data[group]}"]`);
+                    if (radio) radio.checked = true;
+                }
+            });
+
+            if (data.abilities && Array.isArray(data.abilities)) {
+                abilities = data.abilities;
+            } else {
+                abilities = []; 
+            }
+            renderAbilityFields(); 
+
+            if (data.connectSkills && Array.isArray(data.connectSkills)) {
+                connectSkills = data.connectSkills;
+            } else {
+                connectSkills = [];
+            }
+            renderConnectSkillFields(); 
+
+            // 画像関連の強制リセット（画像データは復元できないため）
+            // 1. 内部変数をリセット
+            currentCharImage = null;
+            mainComboUserImage = null;
+            subComboUserImage = null;
+
+            // 2. ファイル選択欄をクリア
+            document.getElementById('charImageUpload').value = "";
+            document.getElementById('mainComboImageUpload').value = "";
+            document.getElementById('subComboImageUpload').value = "";
+
+            // 3. 設定パネルを非表示（座標データ自体は上のループで復元されています）
+            charImgSettingsDiv.style.display = 'none';
+            document.getElementById('mainComboImageSettings').style.display = 'none';
+            document.getElementById('subComboImageSettings').style.display = 'none';
+
+            updateFormVisibility();
+            updateIconImages();
+            loadTemplate(getSelectedTemplateFilename());
+            setupNumberInputPlaceholder('ssTurn1');
+            setupNumberInputPlaceholder('ssTurn2');
+
+            return true;
+        }
+
         function loadSettings() {
             try {
                 const dataString = localStorage.getItem(LOCAL_STORAGE_KEY);
                 if (!dataString) return false;
-
                 const data = JSON.parse(dataString);
-
-                for (const key in data) {
-                    if (inputs[key] && data[key] !== undefined && data[key] !== null) {
-                        inputs[key].value = data[key];
-                    }
-                }
-
-                const radioGroups = ['attribute', 'number', 'globalWeight', 'battleType', 'shotType', 'luckSkill', 'mainComboAttribute', 'subComboAttribute'];
-                radioGroups.forEach(group => {
-                    if (data[group]) {
-                        const radio = document.querySelector(`input[name="${group}"][value="${data[group]}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                });
-
-                if (data.abilities && Array.isArray(data.abilities)) {
-                    abilities = data.abilities;
-                }
-                if (data.connectSkills && Array.isArray(data.connectSkills)) {
-                    connectSkills = data.connectSkills;
-                }
-
-                if (data.charImgSettingsDisplay) {
-                    charImgSettingsDiv.style.display = data.charImgSettingsDisplay;
-                }
-
-                return true;
-
+                return applyData(data);
             } catch (e) {
                 return false;
             }
@@ -1117,7 +1174,7 @@
             const selectedLuck = document.querySelector('input[name="luckSkill"]:checked');
             if (selectedLuck) {
                 const luckValueMap = {
-                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",      
+                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",       
                     "シールド": "luck_shield.png", "クリティカル": "luck_critical.png"  
                 };
                 return `${luckValueMap[selectedLuck.value]}`; 
@@ -1336,11 +1393,6 @@
             document.getElementById('closeTribeModal').onclick = () => {
                 document.getElementById('tribeModal').style.display = 'none';
             };
-            window.onclick = (event) => {
-                if (event.target == document.getElementById('tribeModal')) {
-                    document.getElementById('tribeModal').style.display = 'none';
-                }
-            };
         }
 
         function resetAllSettings() {
@@ -1440,26 +1492,21 @@
             ctx.textBaseline = originalTextBaseline;
         }
 
-        // [新規追加] SSターン数の入力欄に、フォーカス時に初期値を消す挙動を追加
         function setupNumberInputPlaceholder(inputId) {
             const input = document.getElementById(inputId);
-            // 現在の値を「デフォルト値」として記憶する
-            // (ページロード時に値が入っているため)
             input.setAttribute('data-default', input.value); 
             
             input.addEventListener('focus', () => {
-                // フォーカスされた時、もし値がデフォルト値（初期値）と同じなら空にする
                 if (input.value === input.getAttribute('data-default')) {
                     input.value = '';
                 }
             });
 
             input.addEventListener('blur', () => {
-                // フォーカスが外れた時、もし空ならデフォルト値に戻す（計算エラー防止）
                 if (input.value === '' || isNaN(parseInt(input.value))) {
                     input.value = input.getAttribute('data-default');
                 }
-                drawAndSave(); // 変更を保存・再描画
+                drawAndSave(); 
             });
         }
         
@@ -1492,7 +1539,6 @@
             renderConnectSkillFields();
             renderAbilityFields();
 
-            // [新規追加] SSターン数の挙動設定を適用
             setupNumberInputPlaceholder('ssTurn1'); 
             setupNumberInputPlaceholder('ssTurn2'); 
 
@@ -1502,7 +1548,6 @@
         }
 
         Object.values(inputs).forEach(input => {
-            // numberタイプ以外は通常のinputイベントで保存
             if (input && input.type !== 'number') input.addEventListener('input', drawAndSave);
         });
         
@@ -1557,6 +1602,120 @@
         });
         
         resetBtn.addEventListener('click', resetAllSettings);
+
+        // ▼▼▼ 保存・読込・コード生成機能（簡略化版） ▼▼▼
+        const saveLoadModal = document.getElementById('saveLoadModal');
+        const ioTextarea = document.getElementById('ioTextarea');
+
+        document.getElementById('openSaveLoadBtn').onclick = () => {
+            ioTextarea.value = ""; // 開くたびにリセット
+            saveLoadModal.style.display = 'block';
+        };
+
+        document.getElementById('closeSaveLoadModal').onclick = () => {
+            saveLoadModal.style.display = 'none';
+        };
+
+        // クリップボードへのコピー関数（HTML化回避）
+        async function copyTextToClipboard(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    alert('コピーしました！ (Plain Text)');
+                    return;
+                }
+            } catch (err) {}
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'コピーしました！' : 'コピーに失敗しました';
+                alert(msg);
+            } catch (err) {
+                alert('コピーできませんでした。手動でコピーしてください。');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        // ★ Base64コード生成機能 (日本語対応)
+        document.getElementById('generateCodeBtn').onclick = () => {
+            const data = collectDataToSave();
+            delete data._memoInfo; 
+            const jsonString = JSON.stringify(data);
+            
+            try {
+                const base64Data = window.btoa(unescape(encodeURIComponent(jsonString)));
+                
+                const charName = inputs.charName.value || '名称未設定';
+                const formattedText = `${charName}： ${base64Data}`;
+                
+                ioTextarea.value = formattedText;
+                
+                // 自動コピー
+                copyTextToClipboard(formattedText);
+                
+            } catch(e) {
+                alert('コード生成に失敗しました: ' + e.message);
+            }
+        };
+
+        document.getElementById('loadJsonBtn').onclick = () => {
+            try {
+                let inputStr = ioTextarea.value.trim();
+                
+                if (!inputStr) {
+                    alert('データが空です。');
+                    return;
+                }
+
+                // 「キャラ名： コード」形式の場合、コード部分だけを抽出する
+                if (inputStr.includes('：') || inputStr.includes(':')) {
+                    const parts = inputStr.split(/[:：]/);
+                    const possibleCode = parts[parts.length - 1].trim();
+                    if (/^[A-Za-z0-9+/=]+$/.test(possibleCode)) {
+                        inputStr = possibleCode;
+                    }
+                }
+
+                try {
+                    const decodedStr = decodeURIComponent(escape(window.atob(inputStr)));
+                    JSON.parse(decodedStr); 
+                    inputStr = decodedStr; 
+                } catch (e) {}
+                
+                const data = JSON.parse(inputStr);
+                const success = applyData(data);
+                
+                if (success) {
+                    drawAndSave(); 
+                    saveLoadModal.style.display = 'none';
+                    alert('設定を復元しました！\n※画像ファイルは手動で再設定してください。');
+                } else {
+                    alert('データの形式が正しくありません。');
+                }
+            } catch (e) {
+                alert('読み込みに失敗しました。\n正しいデータか確認してください。\n' + e.message);
+            }
+        };
+
+        window.onclick = (event) => {
+            if (event.target == document.getElementById('tribeModal')) {
+                document.getElementById('tribeModal').style.display = 'none';
+            }
+            if (event.target == document.getElementById('helpModal')) {
+                document.getElementById('helpModal').style.display = 'none';
+            }
+            if (event.target == saveLoadModal) {
+                saveLoadModal.style.display = 'none';
+            }
+        };
 
         initTribeModal();
         initHelpModal(); 
