@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>モンスト　キャラクター予想ジェネレーター</title>
     <style>
+        /* ▼▼▼ フォント読み込み設定 ▼▼▼ */
+        @font-face {
+            font-family: 'Reggae One';
+            src: url('ReggaeOne-Regular.ttf') format('truetype');
+        }
+        /* ▲▲▲ ここまで ▲▲▲ */
+
         html, body {
             height: 100%;
             margin: 0;
@@ -397,7 +404,12 @@
                     <input type="radio" id="weight_normal" name="globalWeight" value="normal"><label for="weight_normal">通常</label>
                     <input type="radio" id="weight_bold" name="globalWeight" value="bold" checked><label for="weight_bold">太字</label>
                 </div>
-                
+
+                <label title="文字のフォントを変更します。">フォント:</label>
+                <div class="select-group text-btn-group" style="margin-bottom:0;">
+                    <input type="radio" id="font_standard" name="globalFont" value="sans-serif" checked><label for="font_standard">標準</label>
+                    <input type="radio" id="font_reggae" name="globalFont" value="'Reggae One'"><label for="font_reggae">Reggae One</label>
+                </div>
                 <button id="openSaveLoadBtn" class="reset-btn" style="background-color: #3498db; margin-top: 15px;">復元コードの保存・読込</button>
                 <button id="resetBtn" class="reset-btn">全設定をリセット</button>
             </div>
@@ -836,6 +848,17 @@
             templateImage.src = filename;
         }
 
+        // ▼▼▼ フォント設定を反映した getGlobalFont ▼▼▼
+        function getGlobalFont(size) {
+            // 選択されたフォントファミリーを取得
+            const fontRadio = document.querySelector('input[name="globalFont"]:checked');
+            const family = fontRadio ? fontRadio.value : "sans-serif";
+            
+            const weight = document.querySelector('input[name="globalWeight"]:checked').value;
+            return `${weight} ${size}px ${family}`;
+        }
+        // ▲▲▲ ここまで ▲▲▲
+
         function drawStatusImage() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -878,12 +901,15 @@
 
             ctx.textAlign = 'center';
             ctx.fillStyle = inputs.charNameColor.value; 
-            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 40px sans-serif`;
+            
+            // ★ フォント適用箇所1 (キャラ名)
+            ctx.font = getGlobalFont(40);
             autoResizeAndCenterText(ctx, inputs.charName.value, 235, 45, 30, 400, 40, 18, 26, '');
 
             ctx.fillStyle = inputs.tribeBattleColor.value;
             ctx.textAlign = 'center';
-            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 30px sans-serif`;
+            // ★ フォント適用箇所2 (種族・戦型)
+            ctx.font = getGlobalFont(30);
             ctx.fillText(`${inputs.tribeInput.value}`, 120, 779); 
             const selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
             ctx.fillText(selectedBattleType, 330, 779);
@@ -926,7 +952,8 @@
                         ctx.strokeRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
 
                         let fontSize = 40; 
-                        ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} ${fontSize}px sans-serif`;
+                        // ★ フォント適用箇所3 (アビリティ)
+                        ctx.font = getGlobalFont(fontSize);
                         
                         let textWidth = ctx.measureText(abi.text).width;
                         let availableWidth = ABI_BOX_WIDTH - 20; 
@@ -934,7 +961,7 @@
 
                         while (textWidth > availableWidth && fontSize > 16) {
                             fontSize--;
-                            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} ${fontSize}px sans-serif`;
+                            ctx.font = getGlobalFont(fontSize);
                             textWidth = ctx.measureText(abi.text).width;
                         }
 
@@ -1000,7 +1027,8 @@
 
             ctx.fillStyle = inputs.ssTurnColor.value;
             ctx.textAlign = 'center';
-            ctx.font = `${document.querySelector('input[name="globalWeight"]:checked').value} 37px sans-serif`;
+            // ★ フォント適用箇所4 (SSターン数)
+            ctx.font = getGlobalFont(37);
             const ssTurn = `${inputs.ssTurn1.value}＋${inputs.ssTurn2.value}`;
             ctx.fillText(ssTurn, 604, ssDrawY + 2);
             
@@ -1050,7 +1078,6 @@
         }
 
         function collectDataToSave() {
-            // ▼ 保存データの先頭にわかりやすい名前タグを追加
             const charNameTag = inputs.charName.value ? `【${inputs.charName.value}】` : '【名称未設定】';
             
             const data = {
@@ -1059,6 +1086,9 @@
                 attribute: document.querySelector('input[name="attribute"]:checked')?.value,
                 number: document.querySelector('input[name="number"]:checked')?.value,
                 globalWeight: document.querySelector('input[name="globalWeight"]:checked')?.value,
+                // ▼▼▼ 保存データに追加 ▼▼▼
+                globalFont: document.querySelector('input[name="globalFont"]:checked')?.value,
+                // ▲▲▲ ここまで ▲▲▲
                 battleType: document.querySelector('input[name="battleType"]:checked')?.value,
                 shotType: document.querySelector('input[name="shotType"]:checked')?.value,
                 luckSkill: document.querySelector('input[name="luckSkill"]:checked')?.value,
@@ -1088,7 +1118,9 @@
                 }
             }
 
-            const radioGroups = ['attribute', 'number', 'globalWeight', 'battleType', 'shotType', 'luckSkill', 'mainComboAttribute', 'subComboAttribute'];
+            // ▼▼▼ 復元対象に追加 (globalFont) ▼▼▼
+            const radioGroups = ['attribute', 'number', 'globalWeight', 'battleType', 'shotType', 'luckSkill', 'mainComboAttribute', 'subComboAttribute', 'globalFont'];
+            // ▲▲▲ ここまで ▲▲▲
             radioGroups.forEach(group => {
                 if (data[group]) {
                     const radio = document.querySelector(`input[name="${group}"][value="${data[group]}"]`);
@@ -1110,18 +1142,14 @@
             }
             renderConnectSkillFields(); 
 
-            // 画像関連の強制リセット（画像データは復元できないため）
-            // 1. 内部変数をリセット
             currentCharImage = null;
             mainComboUserImage = null;
             subComboUserImage = null;
 
-            // 2. ファイル選択欄をクリア
             document.getElementById('charImageUpload').value = "";
             document.getElementById('mainComboImageUpload').value = "";
             document.getElementById('subComboImageUpload').value = "";
 
-            // 3. 設定パネルを非表示（座標データ自体は上のループで復元されています）
             charImgSettingsDiv.style.display = 'none';
             document.getElementById('mainComboImageSettings').style.display = 'none';
             document.getElementById('subComboImageSettings').style.display = 'none';
@@ -1415,12 +1443,7 @@
             };
         }
 
-        function getGlobalFont(size) {
-            const family = "sans-serif"; 
-            const weight = document.querySelector('input[name="globalWeight"]:checked').value;
-            return `${weight} ${size}px ${family}`;
-        }
-
+        // ▼▼▼ autoResizeAndCenterText 内のフォント設定ロジックを getGlobalFont に統一 ▼▼▼
         function autoResizeAndCenterText(ctx, text, x, startY, height, maxWidth, initialSize, minSize, lineHeight, fontName = '', textAlign = 'center') {
             
             const originalFont = ctx.font;
@@ -1434,6 +1457,7 @@
             let fontSize = initialSize;
             let finalLines = []; 
             
+            // ★ getGlobalFont を使用
             ctx.font = getGlobalFont(fontSize);
             let textWidth = ctx.measureText(text).width;
             
@@ -1534,6 +1558,9 @@
                 document.getElementById('luck_guide').checked = true;
                 document.getElementById('main_attr_fire').checked = true;
                 document.getElementById('sub_attr_dark').checked = true;
+                
+                // ▼▼▼ デフォルトフォント設定 ▼▼▼
+                document.getElementById('font_standard').checked = true;
             }
             
             renderConnectSkillFields();
@@ -1542,9 +1569,12 @@
             setupNumberInputPlaceholder('ssTurn1'); 
             setupNumberInputPlaceholder('ssTurn2'); 
 
-            updateIconImages(); 
-            loadTemplate(getSelectedTemplateFilename()); 
-            updateFormVisibility(); 
+            // フォントの読み込み待機 (念のため)
+            document.fonts.ready.then(function () {
+                updateIconImages(); 
+                loadTemplate(getSelectedTemplateFilename()); 
+                updateFormVisibility(); 
+            });
         }
 
         Object.values(inputs).forEach(input => {
@@ -1555,6 +1585,12 @@
         document.querySelectorAll('input[name="globalWeight"]').forEach(radio => {
             radio.addEventListener('change', drawAndSave);
         });
+
+        // ▼▼▼ フォント変更時のイベント追加 ▼▼▼
+        document.querySelectorAll('input[name="globalFont"]').forEach(radio => {
+            radio.addEventListener('change', drawAndSave);
+        });
+        // ▲▲▲ ここまで ▲▲▲
         
         shotTypeSelectDiv.addEventListener('change', updateIconImages); 
         luckSkillSelectDiv.addEventListener('change', updateIconImages); 
