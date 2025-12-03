@@ -912,8 +912,11 @@
             let tribeBattleY = 779;
             if (isReggae) tribeBattleY = 783;
 
-            ctx.fillText(`${inputs.tribeInput.value}`, 120, tribeBattleY); 
-            const selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
+            ctx.fillText(`${inputs.tribeInput.value}`, 120, tribeBattleY);      
+            let selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
+            if (isSHIN || isKAI) {
+                selectedBattleType = "超" + selectedBattleType;
+            }
             ctx.fillText(selectedBattleType, 330, tribeBattleY);
 
             if (iconImages.shotType.complete && iconImages.shotType.naturalWidth > 0) { 
@@ -1572,7 +1575,7 @@
         }
 
         Object.values(inputs).forEach(input => {
-            if (input && input.type !== 'number') input.addEventListener('input', drawAndSave);
+            if (input) input.addEventListener('input', drawAndSave);
         });
         
         document.getElementById('battleTypeSelect').addEventListener('change', drawAndSave);
