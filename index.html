@@ -73,17 +73,30 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        #downloadBtn { 
-            margin: 5px auto 0;
-            padding: 6px 15px;
-            font-size: 0.85rem;
+        .canvas-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #saveLocalBtn, #downloadBtn {
+            flex: 1;
+            margin: 0;
+            padding: 10px 5px;
+            font-size: 0.9rem;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            display: inline-block;
-            background-color: #e74c3c; 
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+
+        #saveLocalBtn { background-color: #27ae60; }
+        #saveLocalBtn:hover { background-color: #219150; }
+
+        #downloadBtn { background-color: #e74c3c; }
+        #downloadBtn:hover { background-color: #c0392b; }
 
         #input-controls {
             flex-grow: 1;
@@ -358,6 +371,60 @@
         #ioTextarea:focus { outline: 2px solid #3498db; }
         #openSaveLoadBtn:hover { background-color: #2980b9; }
 
+        /* 過去データリストのコンテナ */
+        #historyListContainer {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            margin-top: 10px;
+        }
+
+        details summary {
+            padding: 5px 0;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        details summary:hover {
+            color: #3498db !important;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+            transition: background 0.2s;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item:hover { background-color: #f9f9f9; }
+
+        .history-name {
+            flex-grow: 1;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2c3e50;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .history-name:hover { color: #3498db; text-decoration: underline; }
+
+        .history-delete {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 5px;
+            margin-left: 10px;
+        }
+        .history-delete:hover { color: #c0392b; transform: scale(1.1); }
+
         @media (min-width: 1024px) {
             body { overflow: auto; display: block; }
             #generator-area {
@@ -375,6 +442,9 @@
                 margin: 20px auto; 
                 max-width: 1200px;
             }
+            
+            .canvas-buttons { display: flex; width: 100%; margin: 10px 0; }
+            #saveLocalBtn, #downloadBtn { width: auto; display: block; }
         }
     </style>
 </head>
@@ -390,7 +460,10 @@
         <div id="canvas-area">
             <h2>プレビュー</h2>
             <canvas id="statusCanvas" width="1440" height="810"></canvas>
-            <button id="downloadBtn">⬇画像をダウンロード (PNG)</button>
+            <div class="canvas-buttons">
+                <button id="saveLocalBtn" title="現在の設定をブラウザに保存します">💾 保存 (リストへ)</button>
+                <button id="downloadBtn">⬇ 画像DL (PNG)</button>
+            </div>
         </div>
 
         <div id="input-controls">
@@ -408,6 +481,15 @@
                     <input type="radio" id="font_standard" name="globalFont" value="sans-serif" checked><label for="font_standard">標準</label>
                     <input type="radio" id="font_reggae" name="globalFont" value="'Reggae One'"><label for="font_reggae">Reggae One</label>
                 </div>
+
+                <hr style="margin: 15px 0; border-top: 1px dashed #ccc;">
+                
+                <details id="historyDetails">
+                    <summary style="cursor:pointer; font-weight:bold; color:#555; outline:none;">📂 過去データ一覧</summary>
+                    <div id="historyListContainer">
+                    </div>
+                </details>
+
                 <button id="openSaveLoadBtn" class="reset-btn" style="background-color: #3498db; margin-top: 15px;">復元コードの保存・読込</button>
                 <button id="resetBtn" class="reset-btn">全設定をリセット</button>
             </div>
@@ -650,7 +732,9 @@
                 <input type="color" id="comboDescColor" value="#000000">
             </div>
         </div>
-    </div> <div id="tribeModal" class="modal">
+    </div> 
+    
+    <div id="tribeModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeTribeModal">&times;</span>
             <h3>種族を選択</h3>
@@ -741,6 +825,7 @@
     <script>
 
         const LOCAL_STORAGE_KEY = 'charGeneratorDataV70';
+        const HISTORY_STORAGE_KEY = 'charGeneratorHistoryListV1';
         
         const canvas = document.getElementById('statusCanvas');
         const ctx = canvas.getContext('2d');
@@ -912,7 +997,7 @@
             let tribeBattleY = 779;
             if (isReggae) tribeBattleY = 783;
 
-            ctx.fillText(`${inputs.tribeInput.value}`, 120, tribeBattleY);      
+            ctx.fillText(`${inputs.tribeInput.value}`, 120, tribeBattleY);       
             let selectedBattleType = document.querySelector('input[name="battleType"]:checked').value;
             if (isSHIN || isKAI) {
                 selectedBattleType = "超" + selectedBattleType;
@@ -1204,7 +1289,7 @@
             const selectedLuck = document.querySelector('input[name="luckSkill"]:checked');
             if (selectedLuck) {
                 const luckValueMap = {
-                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",       
+                    "ガイド": "luck_guide.png", "友クリ": "luck_yucri.png",        
                     "シールド": "luck_shield.png", "クリティカル": "luck_critical.png"  
                 };
                 return `${luckValueMap[selectedLuck.value]}`; 
@@ -1742,6 +1827,102 @@
                 saveLoadModal.style.display = 'none';
             }
         };
+
+        function getHistoryData() {
+            try {
+                const data = localStorage.getItem(HISTORY_STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderHistoryList() {
+            const list = getHistoryData();
+            const container = document.getElementById('historyListContainer');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<p style="font-size:0.8rem; color:#888; text-align:center; margin:10px;">保存されたデータはありません</p>';
+                return;
+            }
+
+            list.slice().reverse().forEach((item, reverseIndex) => {
+                const originalIndex = list.length - 1 - reverseIndex;
+
+                const div = document.createElement('div');
+                div.className = 'history-item';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'history-name';
+                nameSpan.textContent = item.name || '名称未設定';
+                nameSpan.title = `保存日時: ${item.date}`;
+                nameSpan.onclick = () => {
+                    if (confirm(`「${item.name}」のデータを読み込みますか？\n※現在の編集内容は上書きされます。`)) {
+                        applyData(item.data);
+                        drawAndSave();
+                    }
+                };
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'history-delete';
+                delBtn.innerHTML = '🗑';
+                delBtn.title = '削除';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`「${item.name}」を削除しますか？`)) {
+                        deleteHistoryItem(originalIndex);
+                    }
+                };
+
+                div.appendChild(nameSpan);
+                div.appendChild(delBtn);
+                container.appendChild(div);
+            });
+        }
+
+        function saveToHistoryList() {
+            const currentData = collectDataToSave();
+            delete currentData._memoInfo;
+
+            const charName = inputs.charName.value || '名称未設定';
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const newItem = {
+                name: charName,
+                date: dateStr,
+                data: currentData
+            };
+
+            const list = getHistoryData();
+            list.push(newItem);
+
+            try {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list));
+                renderHistoryList();
+                
+                const details = document.getElementById('historyDetails');
+                if(details && !details.open) {
+                    details.open = true;
+                }
+
+                alert(`「${charName}」をリストに保存しました！`);
+            } catch (e) {
+                alert('保存に失敗しました。容量オーバーの可能性があります。不要なデータを削除してください。');
+            }
+        }
+
+        function deleteHistoryItem(index) {
+            const list = getHistoryData();
+            list.splice(index, 1);
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list));
+            renderHistoryList();
+        }
+
+        document.getElementById('saveLocalBtn').addEventListener('click', saveToHistoryList);
+
+        renderHistoryList();
 
         initTribeModal();
         initHelpModal(); 
