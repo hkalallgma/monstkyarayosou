@@ -522,6 +522,18 @@
 
             <label for="charImageUpload" title="表示させたいキャラクターの画像をアップロードします。PNG/JPEGに対応。">【キャラ画像挿入】</label>
             <input type="file" id="charImageUpload" accept="image/*">
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="enableMirror" onchange="drawStatusImage()"> 【鏡面反射ON/OFF】
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <label>反射の高さ:</label>
+                <input type="range" id="mirrorHeight" min="10" max="300" value="89" oninput="drawStatusImage()">
+                <span id="mirrorHeightValue">89</span>px
+            </div>
+
             
             <div id="charImgSettings" class="pos-size-group" style="display: none;">
                 <label>【画像の描画位置・サイズ】</label>
@@ -977,21 +989,41 @@
             const charImageY = parseInt(inputs.charImageY.value, 10);
             const charImageWidth = parseInt(inputs.charImageWidth.value, 10);
             const charImageHeight = parseInt(inputs.charImageHeight.value, 10);
-            if (currentCharImage && currentCharImage.complete) {
-                ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
-            }
 
+            const isMirrorEnabled = document.getElementById('enableMirror').checked;
+            const mirrorHeight = parseInt(document.getElementById('mirrorHeight').value, 10);
+            document.getElementById('mirrorHeightValue').textContent = mirrorHeight;
+            if (currentCharImage && currentCharImage.complete) {
+                //ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
+                ctx.drawImage(currentCharImage, charImageX, charImageY, charImageWidth, charImageHeight);
+                if (isMirrorEnabled) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(0, charImageY + charImageHeight, canvas.width, mirrorHeight); 
+                    ctx.clip();
+                    const reflectY = charImageY + charImageHeight;
+                    ctx.scale(1, -1);
+                    ctx.drawImage(currentCharImage, charImageX, -reflectY - charImageHeight, charImageWidth, charImageHeight);
+                    const gradient = ctx.createLinearGradient(0, -reflectY, 0, -reflectY - mirrorHeight);
+                    gradient.addColorStop(0, "rgba(255, 255, 255, 0.2)"); 
+                    gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)"); 
+                    ctx.globalCompositeOperation = 'source-over'; 
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(charImageX, -reflectY - mirrorHeight, charImageWidth, mirrorHeight);
+                    ctx.restore();
+                }
+            }
             const fontRadio = document.querySelector('input[name="globalFont"]:checked');
             const isReggae = (fontRadio && fontRadio.value === "'Reggae One'");
             ctx.textAlign = 'center';
-            ctx.fillStyle = inputs.charNameColor.value; 
+            ctx.fillStyle = "#FFFFFF"; 
             ctx.font = getGlobalFont(40);
             let charNameY = 40; 
             if (isReggae) charNameY = 39;
             
             autoResizeAndCenterText(ctx, inputs.charName.value, 235, charNameY, 30, 400, 40, 18, 26, '');
 
-            ctx.fillStyle = inputs.tribeBattleColor.value;
+            ctx.fillStyle = "#FFFFFF"; 
             ctx.textAlign = 'center';
             ctx.font = getGlobalFont(30);
             let tribeBattleY = 779;
@@ -1029,15 +1061,22 @@
                     const ABI_BOX_WIDTH = (ABILITY_BOX_REGION.width - COLUMN_GAP) / COLUMNS;
                     
                     abilities.forEach((abi, index) => {
+                        const selectedAttribute = document.querySelector('input[name="attribute"]:checked').value;
+                        const attrColors = {"火": "#FFCCCC","水": "#CCEBFF","木": "#CCFFD0","光": "#F9FFCC","闇": "#F4CCFF"};
+                        const strokeColors = {"火": "#470000","水": "#000247","木": "#104700","光": "#474700","闇": "#310047"};
+                        const boxColor = attrColors[selectedAttribute] || "#FFCCCC";
+                        const strokeColor = strokeColors[selectedAttribute] || "#470000";
+
+
                         const row = Math.floor(index / COLUMNS);
                         const col = index % COLUMNS; 
                         const ABI_LEFT_X = ABILITY_BOX_REGION.x + (col * (ABI_BOX_WIDTH + COLUMN_GAP));
                         const currentAbiY = ABILITY_BOX_REGION.y + (row * TOTAL_ROW_HEIGHT) + (ROW_GAP / 2); 
                         
-                        ctx.fillStyle = inputs.abilityBoxBgColor.value;
+                        ctx.fillStyle = boxColor;
                         ctx.fillRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
                         
-                        ctx.strokeStyle = inputs.abilityBoxBorderColor.value;
+                        ctx.strokeStyle = strokeColor;
                         ctx.lineWidth = 2;
                         ctx.strokeRect(ABI_LEFT_X, currentAbiY, ABI_BOX_WIDTH, ABI_AREA_HEIGHT);
 
@@ -1165,7 +1204,7 @@
             ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'right';
             ctx.textBaseline = 'bottom';
-            ctx.fillText("※コラ画像です", canvas.width - 15, canvas.height - 10);
+            ctx.fillText("※コラ画像です", canvas.width - 15, canvas.height - 8);
         }
 
         function collectDataToSave() {
