@@ -67,6 +67,13 @@ let abilities = [];
 let connectSkills = []; 
 let isSortMode = false;
 let sortOrder = [];
+const ABILITY_OPTIONS = [
+    "超アンチ重力バリア", "超アンチダメージウォール", "超アンチワープ", "超マインスイーパー", 
+    "超アンチウィンド", "超アンチ減速壁", "超アンチ転送壁", "超アンチ減速床", 
+    "アンチ重力バリア", "アンチダメージウォール", "アンチワープ", "マインスイーパー", 
+    "飛行", "アンチブロック", "アンチウィンド", "アンチ魔法陣", 
+    "アンチ減速壁", "アンチ転送壁", "アンチ減速床"
+];
 
 const iconImages = {
     shotType: new Image(), luckSkill: new Image(), mainComboAttr: new Image(), subComboAttr: new Image(),
@@ -655,22 +662,66 @@ function createAbilityField(index) {
     }
     div.appendChild(gaugeToggle);
 
-    // テキスト入力
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'ability-input-wrapper';
+
     const textInput = document.createElement('input');
     textInput.type = 'text';
     textInput.value = abilities[index].text;
     textInput.placeholder = "アビリティを入力"; 
-    textInput.setAttribute('list', 'ability-options');
     
+    const suggestList = document.createElement('ul');
+    suggestList.className = 'suggest-list';
+
+    // 候補リストを描画する関数
+    const renderSuggest = (filterText) => {
+        suggestList.innerHTML = '';
+        // 入力中の文字が含まれるものだけを抽出（空の場合は全て表示）
+        const filtered = ABILITY_OPTIONS.filter(opt => opt.includes(filterText));
+        
+        if (filtered.length === 0) {
+            suggestList.style.display = 'none';
+            return;
+        }
+        
+        filtered.forEach(opt => {
+            const li = document.createElement('li');
+            li.textContent = opt;
+            li.onclick = () => {
+                textInput.value = opt;
+                abilities[index].text = opt;
+                suggestList.style.display = 'none';
+                drawAndSave();
+            };
+            suggestList.appendChild(li);
+        });
+        suggestList.style.display = 'block';
+    };
+
     if (!isSortMode) {
+        // フォーカスした時にリストを表示
+        textInput.onfocus = () => renderSuggest('');
+        
+        // 文字入力するたびにリストを絞り込み
         textInput.oninput = (e) => {
             abilities[index].text = e.target.value;
+            renderSuggest(e.target.value);
             drawAndSave();
+        };
+        
+        // フォーカスが外れたらリストを閉じる（タップ判定を優先するため少し遅らせる）
+        textInput.onblur = () => {
+            setTimeout(() => {
+                suggestList.style.display = 'none';
+            }, 150);
         };
     } else {
         textInput.disabled = true;
     }
-    div.appendChild(textInput);
+    
+    inputWrapper.appendChild(textInput);
+    inputWrapper.appendChild(suggestList);
+    div.appendChild(inputWrapper);
     
     // 削除ボタン
     const deleteBtn = document.createElement('button');

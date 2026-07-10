@@ -493,3 +493,47 @@ details summary:hover {
     border-color: #ccc;
     color: #aaa;
 }
+/* アビリティ用カスタムドロップダウンのスタイル */
+.ability-input-wrapper {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    height: 46px;
+}
+.ability-input-wrapper input[type="text"] {
+    width: 100%;
+    margin: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+.suggest-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 999;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    display: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    border-radius: 0 0 4px 4px;
+}
+.suggest-list li {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+.suggest-list li:last-child {
+    border-bottom: none;
+}
+.suggest-list li:hover {
+    background-color: #eaf4fd;
+}
