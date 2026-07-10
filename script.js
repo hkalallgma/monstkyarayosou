@@ -219,19 +219,12 @@ function drawStatusImage() {
         ctx.drawImage(iconImages.luckSkill, LUCK_ICON_POS_CANVAS.x, LUCK_ICON_POS_CANVAS.y, LUCK_ICON_SIZE_CANVAS, LUCK_ICON_SIZE_CANVAS); 
     }
 
+    // アビリティ描画部分
     {
         const numAbilities = abilities.length;
         if (numAbilities > 0) {
             const COLUMNS = 2; 
-            const MAX_ROWS = 4; // 常に最大4行として高さを固定・制限
-            const TOTAL_ROW_HEIGHT = ABILITY_BOX_REGION.height / MAX_ROWS; 
-            const ABI_AREA_HEIGHT = Math.max(30, TOTAL_ROW_HEIGHT - 5); 
-            const COLUMN_GAP = 8;
-            const BOX_PADDING_Y = 5;
-            const ROW_GAP = TOTAL_ROW_HEIGHT - ABI_AREA_HEIGHT; 
-            const GAUGE_ICON_SIZE = 50;
-            const GAUGE_ICON_PADDING = 5; 
-            const ABI_BOX_WIDTH = (ABILITY_BOX_REGION.width - COLUMN_GAP) / COLUMNS;
+            const MAX_ROWS = 4; // 縦に最大4行までの制限
             
             let grid = [];
             let currentRow = 0;
@@ -239,6 +232,7 @@ function drawStatusImage() {
             let prevHasIcon = false;
             const isSeparate = inputs.separateGauge ? inputs.separateGauge.checked : false;
 
+            // まずアビリティの配置を計算する
             abilities.forEach((abi, index) => {
                 // 素アビからゲージアビに変わった時、チェックが入っていれば一段下げる（改行）
                 if (index > 0 && isSeparate && !prevHasIcon && abi.hasIcon) {
@@ -248,7 +242,7 @@ function drawStatusImage() {
                     }
                 }
                 
-                // 縦に最大4つまで（0〜3行目）の制限
+                // 縦に最大4つまで（0〜3行目）の制限に収まるものだけを描画リストに入れる
                 if (currentRow < MAX_ROWS) {
                     grid.push({ abi: abi, row: currentRow, col: currentCol });
                 }
@@ -260,6 +254,20 @@ function drawStatusImage() {
                 }
                 prevHasIcon = abi.hasIcon;
             });
+
+            // 実際に配置された最大の行数を取得（最小1行、最大4行）
+            const actualRows = grid.length > 0 ? Math.max(...grid.map(item => item.row)) + 1 : 1;
+
+            // 実際の行数に応じてアビリティ枠の高さを動的に計算する（元の仕様）
+            const TOTAL_ROW_HEIGHT = ABILITY_BOX_REGION.height / actualRows; 
+            const ABI_AREA_HEIGHT = Math.max(30, TOTAL_ROW_HEIGHT - 5); 
+            const COLUMN_GAP = 8;
+            const ROW_GAP = TOTAL_ROW_HEIGHT - ABI_AREA_HEIGHT; 
+            
+            // 行数が少なくて枠が大きくなった場合でもアイコンがバランスよく配置されるように調整
+            const GAUGE_ICON_SIZE = Math.min(50, ABI_AREA_HEIGHT * 0.8); 
+            const GAUGE_ICON_PADDING = 5; 
+            const ABI_BOX_WIDTH = (ABILITY_BOX_REGION.width - COLUMN_GAP) / COLUMNS;
 
             grid.forEach((item) => {
                 const abi = item.abi;
