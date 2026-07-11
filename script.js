@@ -45,11 +45,11 @@ async function fetchAndParseCSV(url) {
 async function initializeAbilitiesDatabase() {
     try {
         const [abilitiesTable, gradesTable, killersTable, sealsTable, resistsTable] = await Promise.all([
-            fetchAndParseCSV('アビリティ.csv'),
-            fetchAndParseCSV('等級.csv'),
-            fetchAndParseCSV('キラー.csv'),
-            fetchAndParseCSV('封じ.csv'),
-            fetchAndParseCSV('耐性.csv')
+            fetchAndParseCSV('ability.csv'),
+            fetchAndParseCSV('grade.csv'),
+            fetchAndParseCSV('killer.csv'),
+            fetchAndParseCSV('seal.csv'),
+            fetchAndParseCSV('resist.csv')
         ]);
 
         const abilityMap = new Map(); // 重複防止用にMapを使用 (key: 表示名, value: ヨミガナ)
