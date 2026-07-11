@@ -12,6 +12,107 @@ const ATTRIBUTE_MAP = {
     "火": "fire", "水": "water", "木": "wood", "光": "light", "闇": "dark", "無": "none", "全": "all"
 };
 
+// ==========================================
+// CSVからの全アビリティ網羅リスト自動生成ロジック (読み仮名対応版)
+// ==========================================
+let ALL_ABILITIES = []; // { text: "表示名", kana: "ヨミガナ" } のオブジェクト配列になります
+
+// CSVを読み込んでオブジェクトの配列に変換する関数
+async function fetchAndParseCSV(url) {
+    const response = await fetch(url);
+    const text = await response.text();
+    const lines = text.trim().split('\n').map(line => line.split(','));
+    const keys = lines[1].map(k => k.trim()); 
+    const data = [];
+    
+    for (let i = 2; i < lines.length; i++) {
+        const row = lines[i];
+        if (row.length === 0 || row[0] === "") continue; 
+        
+        const obj = {};
+        keys.forEach((key, index) => {
+            let val = row[index] ? row[index].trim() : "";
+            if (val.toUpperCase() === 'T' || val.toUpperCase() === 'TRUE') val = true;
+            else if (val === '' || val.toUpperCase() === 'FALSE') val = false;
+            obj[key] = val;
+        });
+        data.push(obj);
+    }
+    return data;
+}
+
+// データベースを初期化し、全パターンのアビリティを生成する関数
+async function initializeAbilitiesDatabase() {
+    try {
+        const [abilitiesTable, gradesTable, killersTable, sealsTable, resistsTable] = await Promise.all([
+            fetchAndParseCSV('deta/アビリティ.csv'),
+            fetchAndParseCSV('deta/等級.csv'),
+            fetchAndParseCSV('deta/キラー.csv'),
+            fetchAndParseCSV('deta/封じ.csv'),
+            fetchAndParseCSV('deta/耐性.csv')
+        ]);
+
+        const abilityMap = new Map(); // 重複防止用にMapを使用 (key: 表示名, value: ヨミガナ)
+        const grades = gradesTable.map(g => g.name ? g.name : "");
+
+        // 1. アビリティの展開 (name列とnameK列を使用)
+        abilitiesTable.forEach(item => {
+            // 超がついた場合、ヨミガナには「チョウ」をつける
+            const prefixes = item.hasChou ? [{t: "", k: ""}, {t: "超", k: "チョウ"}] : [{t: "", k: ""}];
+            const gradeSuffixes = item.hasGrade ? grades : [""];
+
+            prefixes.forEach(prefix => {
+                gradeSuffixes.forEach(grade => {
+                    const text = `${prefix.t}${item.name}${grade}`;
+                    const kana = `${prefix.k}${item.nameK || item.name}${grade}`;
+                    abilityMap.set(text, kana);
+                });
+            });
+        });
+
+        // 2. キラーの展開 (target列とtargetK列を使用)
+        killersTable.forEach(item => {
+            const gradeSuffixes = item.hasGrade ? grades : [""];
+            gradeSuffixes.forEach(grade => {
+                const text = `${item.target}キラー${grade}`;
+                const kana = `${item.targetK || item.target}キラー${grade}`;
+                abilityMap.set(text, kana);
+            });
+        });
+
+        // 3. 封じの展開
+        sealsTable.forEach(item => {
+            const gradeSuffixes = item.hasGrade ? grades : [""];
+            gradeSuffixes.forEach(grade => {
+                const text = `${item.target}封じ${grade}`;
+                const kana = `${item.targetK || item.target}フウジ${grade}`;
+                abilityMap.set(text, kana);
+            });
+        });
+
+        // 4. 耐性の展開
+        resistsTable.forEach(item => {
+            const gradeSuffixes = item.hasGrade ? grades : [""];
+            gradeSuffixes.forEach(grade => {
+                const text = `${item.target}耐性${grade}`;
+                const kana = `${item.targetK || item.target}タイセイ${grade}`;
+                abilityMap.set(text, kana);
+            });
+        });
+
+        // オブジェクトの配列に変換してソートし、グローバル変数にセット
+        ALL_ABILITIES = Array.from(abilityMap, ([text, kana]) => ({ text, kana }))
+                             .sort((a, b) => a.text.localeCompare(b.text));
+        
+        console.log(`アビリティリスト生成完了(読み仮名対応): 計 ${ALL_ABILITIES.length} 件`);
+
+    } catch (error) {
+        console.error("CSVの読み込みに失敗しました。パスやファイル名を確認してください:", error);
+    }
+}
+
+initializeAbilitiesDatabase();
+
 const inputs = {
     charName: document.getElementById('charName'), tribeInput: document.getElementById('tribeInput'),
     assistSkill_nonKai: document.getElementById('assistSkill_nonKai'), shotSkill_nonKai: document.getElementById('shotSkill_nonKai'),
@@ -681,23 +782,49 @@ function createAbilityField(index) {
     const suggestList = document.createElement('ul');
     suggestList.className = 'suggest-list';
 
+    // (中略) ... テキスト入力とカスタムドロップダウンのラッパー設定
+
+    // ▼ ひらがなをカタカナに変換する便利関数
+    const hiraToKata = (str) => {
+        return str.replace(/[\u3041-\u3096]/g, match => {
+            return String.fromCharCode(match.charCodeAt(0) + 0x60);
+        });
+    };
+
     // 候補リストを描画する関数
     const renderSuggest = (filterText) => {
         suggestList.innerHTML = '';
-        // 入力中の文字が含まれるものだけを抽出（空の場合は全て表示）
-        const filtered = ABILITY_OPTIONS.filter(opt => opt.includes(filterText));
+        
+        if (!filterText || filterText.trim() === '') {
+            suggestList.style.display = 'none';
+            return;
+        }
+
+        const searchWordKana = hiraToKata(filterText);
+        const searchWordLower = filterText.toLowerCase();
+
+        // 英語の小文字一致(text)、またはカタカナ一致(kana)で絞り込む
+        const filtered = ALL_ABILITIES.filter(opt => 
+            opt.text.toLowerCase().includes(searchWordLower) || 
+            opt.kana.includes(searchWordKana)
+        );
         
         if (filtered.length === 0) {
             suggestList.style.display = 'none';
             return;
         }
         
-        filtered.forEach(opt => {
+        // 検索結果が多すぎる場合は画面が埋まらないよう制限
+        filtered.slice(0, 30).forEach(opt => {
             const li = document.createElement('li');
-            li.textContent = opt;
+            
+            // 入力文字に一致する部分を太字にする（表示される漢字テキストに対して）
+            const regex = new RegExp(`(${filterText}|${searchWordKana})`, 'gi');
+            li.innerHTML = opt.text.replace(regex, '<strong>$1</strong>');
+            
             li.onclick = () => {
-                textInput.value = opt;
-                abilities[index].text = opt;
+                textInput.value = opt.text;       // クリックされたら「表示名」を入れる
+                abilities[index].text = opt.text; // 配列にも「表示名」を保存
                 suggestList.style.display = 'none';
                 drawAndSave();
             };
@@ -707,21 +834,21 @@ function createAbilityField(index) {
     };
 
     if (!isSortMode) {
-        // フォーカスした時にリストを表示
-        textInput.onfocus = () => renderSuggest('');
+        // フォーカス時：以前入っていた文字でサジェスト検索
+        textInput.onfocus = (e) => renderSuggest(e.target.value);
         
-        // 文字入力するたびにリストを絞り込み
+        // 文字入力するたびに部分一致でリストを更新
         textInput.oninput = (e) => {
             abilities[index].text = e.target.value;
             renderSuggest(e.target.value);
             drawAndSave();
         };
         
-        // フォーカスが外れたらリストを閉じる（タップ判定を優先するため少し遅らせる）
+        // フォーカスが外れたら少し遅れて閉じる（タップ判定を優先するため）
         textInput.onblur = () => {
             setTimeout(() => {
                 suggestList.style.display = 'none';
-            }, 150);
+            }, 200);
         };
     } else {
         textInput.disabled = true;
