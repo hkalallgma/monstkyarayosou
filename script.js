@@ -101,8 +101,7 @@ async function initializeAbilitiesDatabase() {
         });
 
         // オブジェクトの配列に変換してソートし、グローバル変数にセット
-        ALL_ABILITIES = Array.from(abilityMap, ([text, kana]) => ({ text, kana }))
-                             .sort((a, b) => a.text.localeCompare(b.text));
+        ALL_ABILITIES = Array.from(abilityMap, ([text, kana]) => ({ text, kana }));
         
         console.log(`アビリティリスト生成完了(読み仮名対応): 計 ${ALL_ABILITIES.length} 件`);
 
